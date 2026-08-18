@@ -161,7 +161,16 @@ The goal is to understand **why** the GPU behaves the way it does.
 - [x] First CUDA kernel
 - [x] Vector addition correctness
 - [x] Initial performance measurement
-- [ ] Proper microbenchmark
-- [ ] Memory bandwidth analysis
-- [ ] Memory access experiments
+- [x] Proper microbenchmark
+- [x] Memory bandwidth analysis
+- [x] Memory access experiments
 - [ ] Matrix multiplication
+
+## Current Focus
+
+Week 1 / Experiment 02:
+
+- Build a naive CUDA matrix-multiplication benchmark.
+- Measure kernel time and achieved GFLOP/s.
+- Compare the bottleneck against vector addition.
+- Use the result to start reasoning about arithmetic intensity.
