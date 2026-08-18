@@ -1,0 +1,36 @@
+N                   = 512 x 512
+Matrix bytes        = 1.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 32 x 32
+Warm-up launches    = 3
+Iterations          = 20
+
+Min kernel time     = 0.609 ms
+Max kernel time     = 0.621 ms
+Average kernel time = 0.614 ms
+Achieved throughput = 436.875 GFLOP/s
+Result              = PASS
+N                   = 1024 x 1024
+Matrix bytes        = 4.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 64 x 64
+Warm-up launches    = 3
+Iterations          = 20
+
+Min kernel time     = 4.733 ms
+Max kernel time     = 4.825 ms
+Average kernel time = 4.792 ms
+Achieved throughput = 448.103 GFLOP/s
+Result              = PASS
+N                   = 2048 x 2048
+Matrix bytes        = 16.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 128 x 128
+Warm-up launches    = 3
+Iterations          = 10
+
+Min kernel time     = 38.626 ms
+Max kernel time     = 39.327 ms
+Average kernel time = 39.023 ms
+Achieved throughput = 440.248 GFLOP/s
+Result              = PASS
