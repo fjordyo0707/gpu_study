@@ -198,10 +198,10 @@ the kernel closer to the GPU's compute capability.
 | ---- | ----------- | ----------- | ------ |
 | 02A  | Naive matrix multiplication | One thread computes one output element using global memory | Complete |
 | 02B  | Shared-memory tiled matrix multiplication | Cache tiles of `A` and `B` in shared memory | Complete |
-| 02C  | Tile-size sweep | Compare different tile sizes and block shapes | Next |
-| 02D  | Register blocking | Compute multiple output values per thread | Future |
-| 02E  | Memory-layout experiment | Compare normal `B` access with transposed or reordered `B` | Future |
-| 02F  | cuBLAS comparison | Compare custom kernels against `cublasSgemm` | Future |
+| 02C  | Tile-size sweep | Compare different tile sizes and block shapes | Complete |
+| 02D  | Register blocking | Compute multiple output values per thread | Complete |
+| 02E  | Memory-layout experiment | Compare normal `B` access with transposed or reordered `B` | Complete |
+| 02F  | cuBLAS comparison | Compare custom kernels against `cublasSgemm` | Complete |
 
 ## Executable Usage
 
@@ -415,7 +415,7 @@ Append experiment output to the lab log:
 ./matmul_cublas 1024 16 20 | tee -a std_record.log
 ```
 
-## Optimization 02B Template - Shared Memory Tiling
+## Optimization 02B - Shared Memory Tiling
 
 ### Goal
 
@@ -518,11 +518,10 @@ values directly from global memory inside every thread's inner loop.
 
 The result confirms that the naive kernel was wasting bandwidth through
 redundant global-memory traffic. The tiled kernel is still far below
-peak GPU throughput, so the next useful experiment is to sweep tile size
-and block shape to see how shared-memory use, occupancy, and memory
-access pattern interact.
+peak GPU throughput, which motivates the tile-size sweep and later
+per-thread work experiments below.
 
-## Future Optimization Template - Tile-Size Sweep
+## Optimization 02C - Tile-Size Sweep
 
 ### Goal
 
@@ -533,9 +532,23 @@ memory usage.
 
 | N    | Tile dim | Threads/block | Shared memory/block | Avg time (ms) | GFLOP/s | Result |
 | ---: | -------: | ------------: | ------------------: | ------------: | ------: | ------ |
-| 1024 |          |               |                     |               |         |        |
-| 1024 |          |               |                     |               |         |        |
-| 1024 |          |               |                     |               |         |        |
+| 1024 |        8 |            64 |           0.500 KiB |         2.976 | 721.548 | PASS   |
+| 1024 |       16 |           256 |           2.000 KiB |         2.369 | 906.614 | PASS   |
+| 1024 |       32 |          1024 |           8.000 KiB |         2.160 | 994.135 | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
+
+### Detailed Timing
+
+| Tile dim | Grid dim  | Min time (ms) | Max time (ms) | Avg time (ms) |
+| -------: | --------- | ------------: | ------------: | ------------: |
+|        8 | 128 x 128 |         2.943 |         3.193 |         2.976 |
+|       16 | 64 x 64   |         2.222 |         2.522 |         2.369 |
+|       32 | 32 x 32   |         2.127 |         2.212 |         2.160 |
 
 ### Observation Questions
 
@@ -545,11 +558,27 @@ memory usage.
 
 ### Observation
 
+For `1024 x 1024`, increasing tile size improved performance across the
+tested range:
+
+- `8 x 8`: 721.548 GFLOP/s
+- `16 x 16`: 906.614 GFLOP/s
+- `32 x 32`: 994.135 GFLOP/s
+
+The `32 x 32` tile was fastest in this sweep, reaching nearly the same
+throughput as the earlier `matmul_tiled` baseline.
 
 ### Interpretation
 
+Larger tiles increase data reuse because each loaded tile element can be
+used by more multiply-add operations inside the block.
 
-## Future Optimization Template - Register Blocking
+The tradeoff is that larger tiles also use more threads per block and
+more shared memory per block. The `32 x 32` case uses 1024 threads per
+block, which is the CUDA maximum, so future optimizations may need to
+improve per-thread work rather than simply increasing block size.
+
+## Optimization 02D - Register Blocking
 
 ### Goal
 
@@ -560,9 +589,19 @@ loaded from memory can be reused in registers.
 
 | N    | Tile dim | Outputs/thread | Avg time (ms) | GFLOP/s | Speedup vs tiled | Result |
 | ---: | -------: | -------------: | ------------: | ------: | ---------------: | ------ |
-| 1024 |          |                |               |         |                  |        |
-| 1024 |          |                |               |         |                  |        |
-| 2048 |          |                |               |         |                  |        |
+| 1024 |       16 |              2 |         1.564 | 1373.441 |          1.36x | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
+
+### Detailed Timing
+
+| N    | Tile dim | Outputs/thread | Grid dim | Shared memory/block | Min time (ms) | Max time (ms) | Avg time (ms) |
+| ---: | -------: | -------------: | -------- | ------------------: | ------------: | ------------: | ------------: |
+| 1024 |       16 |              2 | 32 x 64  |           3.000 KiB |         1.559 |         1.574 |         1.564 |
 
 ### Observation Questions
 
@@ -572,11 +611,23 @@ loaded from memory can be reused in registers.
 
 ### Observation
 
+Register blocking improved the `1024 x 1024` result from the tiled
+baseline's 2.133 ms to 1.564 ms.
+
+Throughput increased from about 1006.580 GFLOP/s for the tiled baseline
+to 1373.441 GFLOP/s.
 
 ### Interpretation
 
+Computing two output values per thread lets each thread reuse one loaded
+`A` value across two accumulators. This increases the useful work done
+per thread and reduces some redundant memory traffic.
 
-## Future Optimization Template - Memory Layout
+The improvement suggests that the previous tiled kernel was not only
+limited by global-memory traffic. Per-thread instruction mix, register
+reuse, and block scheduling also matter.
+
+## Optimization 02E - Memory Layout
 
 ### Goal
 
@@ -585,11 +636,23 @@ memory locality changes performance.
 
 ### Measurement Table
 
-| N    | Kernel variant | B layout | Avg time (ms) | GFLOP/s | Speedup vs tiled | Result |
-| ---: | -------------- | -------- | ------------: | ------: | ---------------: | ------ |
-| 1024 |                |          |               |         |                  |        |
-| 1024 |                |          |               |         |                  |        |
-| 2048 |                |          |               |         |                  |        |
+| N    | Kernel variant | B layout   | Avg time (ms) | GFLOP/s | Speedup vs normal | Result |
+| ---: | -------------- | ---------- | ------------: | ------: | ----------------: | ------ |
+| 1024 | normal_b       | row-major  |         4.927 | 435.837 |             1.00x | PASS   |
+| 1024 | transposed_b   | transposed |        18.258 | 117.619 |             0.27x | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
+
+### Detailed Timing
+
+| Kernel variant | Min time (ms) | Max time (ms) | Avg time (ms) |
+| -------------- | ------------: | ------------: | ------------: |
+| normal_b       |         4.887 |         4.963 |         4.927 |
+| transposed_b   |        17.187 |        20.246 |        18.258 |
 
 ### Observation Questions
 
@@ -599,11 +662,24 @@ memory locality changes performance.
 
 ### Observation
 
+The pre-transposed `B` layout was much slower for this thread mapping.
+
+The normal layout reached 435.837 GFLOP/s, while the transposed layout
+fell to 117.619 GFLOP/s.
 
 ### Interpretation
 
+This result is a useful correction to the first intuition that
+"contiguous" data is always better.
 
-## Future Optimization Template - cuBLAS Comparison
+In the normal `B[k][col]` layout, neighboring threads with adjacent
+`col` values read adjacent `B` addresses for a fixed `k`. In the
+transposed layout, those same neighboring threads read addresses spaced
+by `N`, which produces a much worse warp-level access pattern.
+
+The layout must be evaluated together with the thread mapping.
+
+## Optimization 02F - cuBLAS Comparison
 
 ### Goal
 
@@ -614,9 +690,22 @@ implementation.
 
 | N    | Kernel | Avg time (ms) | GFLOP/s | Speedup vs naive | Speedup vs tiled | Result |
 | ---: | ------ | ------------: | ------: | ---------------: | ---------------: | ------ |
-| 1024 |        |               |         |                  |                  |        |
-| 1024 |        |               |         |                  |                  |        |
-| 2048 |        |               |         |                  |                  |        |
+| 1024 | naive baseline |         4.792 | 448.103 |            1.00x |            0.45x | PASS   |
+| 1024 | custom_tiled   |         2.125 | 1010.346 |           2.25x |            1.00x | PASS   |
+| 1024 | cublasSgemm    |         0.284 | 7559.304 |          16.87x |            7.51x | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
+
+### Detailed Timing
+
+| Kernel | Min time (ms) | Max time (ms) | Avg time (ms) |
+| ------ | ------------: | ------------: | ------------: |
+| custom_tiled |         2.118 |         2.141 |         2.125 |
+| cublasSgemm  |         0.274 |         0.299 |         0.284 |
 
 ### Observation Questions
 
@@ -626,5 +715,64 @@ implementation.
 
 ### Observation
 
+cuBLAS is dramatically faster than the custom kernels.
+
+For `1024 x 1024`, `cublasSgemm` achieved 7559.304 GFLOP/s, compared
+with 1010.346 GFLOP/s for the custom tiled kernel measured in the same
+program.
 
 ### Interpretation
+
+The custom kernels demonstrate the main memory-optimization ideas, but
+they are still simple teaching kernels.
+
+cuBLAS is much closer to a production SGEMM implementation. It likely
+uses deeper blocking, more careful register tiling, instruction
+scheduling, vectorized memory movement, and architecture-specific tuning
+that this lab has not implemented yet.
+
+## Overall Observations
+
+The matrix-multiplication experiments show a clear performance ladder:
+
+| Kernel | Avg time for 1024 x 1024 (ms) | Throughput (GFLOP/s) |
+| ------ | ----------------------------: | -------------------: |
+| Naive |                         4.792 |              448.103 |
+| Shared-memory tiled |          2.133 |             1006.580 |
+| Register blocking |             1.564 |             1373.441 |
+| cuBLAS |                        0.284 |             7559.304 |
+
+Shared-memory tiling proves that the naive kernel wastes global-memory
+traffic. Caching tiles of `A` and `B` lets each block reuse data and more
+than doubles throughput.
+
+Register blocking shows that optimization does not stop at shared
+memory. By computing multiple output values per thread, the kernel gets
+more useful arithmetic from values already held in registers. This moves
+the discussion from only global-memory bandwidth toward instruction
+scheduling, register reuse, occupancy, and per-thread arithmetic work.
+
+The memory-layout experiment is the most useful warning. Pre-transposing
+`B` made the kernel much slower, even though the data looked more
+contiguous from a single thread's point of view. What matters is the
+warp-level access pattern. With the normal layout, neighboring threads
+with adjacent `col` values read adjacent `B` addresses for a fixed `k`.
+With the transposed layout, neighboring threads read addresses separated
+by `N`, which hurts coalescing.
+
+cuBLAS gives the target direction. The best teaching kernel in this lab
+reaches about 1.37 TFLOP/s, while `cublasSgemm` reaches about
+7.56 TFLOP/s for the same matrix size. That gap suggests cuBLAS is using
+deeper blocking, register tiling, architecture-specific scheduling, and
+better instruction and memory pipelining.
+
+The main lesson is that matrix multiplication optimization is a stack of
+reuse decisions:
+
+1. Reuse data across threads with shared memory.
+2. Reuse data inside a thread with registers.
+3. Preserve coalesced warp-level memory access.
+4. Tune the work shape for the actual GPU architecture.
+
+This makes Week 2's memory-hierarchy work the natural next step,
+especially warp-level coalescing and cache behavior.

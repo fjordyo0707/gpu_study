@@ -166,14 +166,17 @@ The goal is to understand **why** the GPU behaves the way it does.
 - [x] Memory access experiments
 - [x] Matrix multiplication
 - [x] Shared-memory tiled matrix multiplication
-- [ ] Matrix multiplication tile-size sweep
+- [x] Matrix multiplication tile-size sweep
+- [x] Matrix multiplication register blocking
+- [x] Matrix multiplication memory-layout experiment
+- [x] Matrix multiplication cuBLAS comparison
+- [ ] Warp-level memory coalescing
 
 ## Current Focus
 
-Week 1 / Experiment 03:
+Week 2 / Experiment 01:
 
-- Sweep matrix-multiplication tile sizes and block shapes.
-- Compare each variant against the naive and shared-memory tiled
-  baselines.
-- Record how tile size changes runtime, throughput, shared-memory use,
-  and occupancy.
+- Measure contiguous, offset, and strided global-memory access patterns.
+- Explain the results using warp-level memory coalescing.
+- Connect the results to the vector-add stride experiment and the
+  matrix-multiply memory-layout experiment.
