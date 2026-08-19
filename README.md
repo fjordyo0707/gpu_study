@@ -165,14 +165,15 @@ The goal is to understand **why** the GPU behaves the way it does.
 - [x] Memory bandwidth analysis
 - [x] Memory access experiments
 - [x] Matrix multiplication
+- [x] Shared-memory tiled matrix multiplication
+- [ ] Matrix multiplication tile-size sweep
 
 ## Current Focus
 
 Week 1 / Experiment 03:
 
-- Implement tiled matrix multiplication using shared memory.
-- Compare the tiled kernel against the naive matrix-multiplication
-  baseline.
-- Explain how shared-memory reuse changes global-memory traffic.
-- Use the matrix-multiplication lab templates to record each optimization
-  before moving to the next one.
+- Sweep matrix-multiplication tile sizes and block shapes.
+- Compare each variant against the naive and shared-memory tiled
+  baselines.
+- Record how tile size changes runtime, throughput, shared-memory use,
+  and occupancy.

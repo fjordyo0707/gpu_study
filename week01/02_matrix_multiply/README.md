@@ -188,8 +188,8 @@ the kernel closer to the GPU's compute capability.
 | Step | Kernel idea | Main change | Status |
 | ---- | ----------- | ----------- | ------ |
 | 02A  | Naive matrix multiplication | One thread computes one output element using global memory | Complete |
-| 02B  | Shared-memory tiled matrix multiplication | Cache tiles of `A` and `B` in shared memory | Next |
-| 02C  | Tile-size sweep | Compare different tile sizes and block shapes | Future |
+| 02B  | Shared-memory tiled matrix multiplication | Cache tiles of `A` and `B` in shared memory | Complete |
+| 02C  | Tile-size sweep | Compare different tile sizes and block shapes | Next |
 | 02D  | Register blocking | Compute multiple output values per thread | Future |
 | 02E  | Memory-layout experiment | Compare normal `B` access with transposed or reordered `B` | Future |
 | 02F  | cuBLAS comparison | Compare custom kernels against `cublasSgemm` | Future |
@@ -218,13 +218,13 @@ write C[row][col]
 
 ### Fixed Variables
 
-- GPU:
-- Architecture:
-- CUDA Toolkit:
-- Compiler target:
-- Matrix values:
-- Timing method:
-- Warm-up launches:
+- GPU: NVIDIA GeForce GTX 1080 Ti
+- Architecture: Pascal / GP102
+- CUDA Toolkit: 12.6.3
+- Compiler target: `sm_61`
+- Matrix values: `A = 1.0`, `B = 2.0`
+- Timing method: CUDA events
+- Warm-up launches: 3
 
 ### Build
 
@@ -237,24 +237,36 @@ nvcc -O3 -std=c++17 -arch=sm_61 matmul_tiled.cu -o matmul_tiled
 ```bash
 ./matmul_tiled 512 16 20
 ./matmul_tiled 1024 16 20
-./matmul_tiled 2048 16 10
+./matmul_tiled 2048 16 20
 ```
 
 ### Measurement Table
 
 | N    | Tile dim | Iterations | Avg time (ms) | GFLOP/s | Speedup vs naive | Result |
 | ---: | -------: | ---------: | ------------: | ------: | ---------------: | ------ |
-|  512 |          |            |               |         |                  |        |
-| 1024 |          |            |               |         |                  |        |
-| 2048 |          |            |               |         |                  |        |
+|  512 |       16 |         20 |         0.280 | 960.037 |            2.19x | PASS   |
+| 1024 |       16 |         20 |         2.133 | 1006.580 |           2.25x | PASS   |
+| 2048 |       16 |         20 |        17.968 | 956.163 |            2.17x | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
 
 ### Detailed Timing
 
 | N    | Tile dim | Grid dim | Min time (ms) | Max time (ms) | Avg time (ms) |
 | ---: | -------: | -------- | ------------: | ------------: | ------------: |
-|  512 |          |          |               |               |               |
-| 1024 |          |          |               |               |               |
-| 2048 |          |          |               |               |               |
+|  512 |       16 | 32 x 32  |         0.278 |         0.285 |         0.280 |
+| 1024 |       16 | 64 x 64  |         2.129 |         2.141 |         2.133 |
+| 2048 |       16 | 128 x 128 |       17.040 |        19.557 |        17.968 |
+
+Shared memory per block:
+
+```text
+2.000 KiB
+```
 
 ### Observation Questions
 
@@ -264,9 +276,30 @@ nvcc -O3 -std=c++17 -arch=sm_61 matmul_tiled.cu -o matmul_tiled
 
 ### Observation
 
+The shared-memory tiled kernel passes correctness for all tested sizes.
+
+Compared with the naive kernel, the tiled kernel is consistently faster:
+
+- `512 x 512`: 0.614 ms to 0.280 ms, or 2.19x faster
+- `1024 x 1024`: 4.792 ms to 2.133 ms, or 2.25x faster
+- `2048 x 2048`: 39.023 ms to 17.968 ms, or 2.17x faster
+
+The tiled kernel reaches roughly 0.96-1.01 TFLOP/s across the tested
+sizes. Throughput is still fairly stable as `N` increases, but the
+`2048 x 2048` run shows a wider min-to-max spread than the smaller
+cases.
 
 ### Interpretation
 
+Shared-memory tiling significantly improves performance because each
+block reuses tiles of `A` and `B` instead of repeatedly loading all
+values directly from global memory inside every thread's inner loop.
+
+The result confirms that the naive kernel was wasting bandwidth through
+redundant global-memory traffic. The tiled kernel is still far below
+peak GPU throughput, so the next useful experiment is to sweep tile size
+and block shape to see how shared-memory use, occupancy, and memory
+access pattern interact.
 
 ## Future Optimization Template - Tile-Size Sweep
 
