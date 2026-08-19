@@ -1,3 +1,4 @@
+matmul_naive
 N                   = 512 x 512
 Matrix bytes        = 1.000 MiB each
 Block dim           = 16 x 16
@@ -33,4 +34,45 @@ Min kernel time     = 38.626 ms
 Max kernel time     = 39.327 ms
 Average kernel time = 39.023 ms
 Achieved throughput = 440.248 GFLOP/s
+
+matmul_tiled
+
+N                   = 512 x 512
+Matrix bytes        = 1.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 32 x 32
+Shared memory/block = 2.000 KiB
+Warm-up launches    = 3
+Iterations          = 20
+
+Min kernel time     = 0.278 ms
+Max kernel time     = 0.285 ms
+Average kernel time = 0.280 ms
+Achieved throughput = 960.037 GFLOP/s
+Result              = PASS
+N                   = 1024 x 1024
+Matrix bytes        = 4.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 64 x 64
+Shared memory/block = 2.000 KiB
+Warm-up launches    = 3
+Iterations          = 20
+
+Min kernel time     = 2.129 ms
+Max kernel time     = 2.141 ms
+Average kernel time = 2.133 ms
+Achieved throughput = 1006.580 GFLOP/s
+Result              = PASS
+N                   = 2048 x 2048
+Matrix bytes        = 16.000 MiB each
+Block dim           = 16 x 16
+Grid dim            = 128 x 128
+Shared memory/block = 2.000 KiB
+Warm-up launches    = 3
+Iterations          = 20
+
+Min kernel time     = 17.040 ms
+Max kernel time     = 19.557 ms
+Average kernel time = 17.968 ms
+Achieved throughput = 956.163 GFLOP/s
 Result              = PASS
