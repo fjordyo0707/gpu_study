@@ -56,7 +56,16 @@ of memory bandwidth.
 make
 ```
 
-Equivalent manual command:
+This builds all matrix-multiplication lab executables:
+
+- `matmul_naive`
+- `matmul_tiled`
+- `matmul_tile_sweep`
+- `matmul_register_blocking`
+- `matmul_memory_layout`
+- `matmul_cublas`
+
+The naive baseline can also be built manually:
 
 ```bash
 nvcc -O3 -std=c++17 -arch=sm_61 matmul_naive.cu -o matmul_naive
@@ -193,6 +202,218 @@ the kernel closer to the GPU's compute capability.
 | 02D  | Register blocking | Compute multiple output values per thread | Future |
 | 02E  | Memory-layout experiment | Compare normal `B` access with transposed or reordered `B` | Future |
 | 02F  | cuBLAS comparison | Compare custom kernels against `cublasSgemm` | Future |
+
+## Executable Usage
+
+All commands in this section should be run from:
+
+```bash
+week01/02_matrix_multiply
+```
+
+Build the full lab:
+
+```bash
+make
+```
+
+### Naive Baseline
+
+File:
+
+```text
+matmul_naive.cu
+```
+
+Usage:
+
+```bash
+./matmul_naive <matrix_size> <block_dim> <iterations>
+```
+
+Example:
+
+```bash
+./matmul_naive 1024 16 20
+```
+
+Purpose:
+
+Establish the baseline one-output-element-per-thread matrix
+multiplication result using global memory directly.
+
+Make shortcut:
+
+```bash
+make run-naive
+```
+
+### Shared-Memory Tiled Baseline
+
+File:
+
+```text
+matmul_tiled.cu
+```
+
+Usage:
+
+```bash
+./matmul_tiled <matrix_size> <tile_dim> <iterations>
+```
+
+Example:
+
+```bash
+./matmul_tiled 1024 16 20
+```
+
+Purpose:
+
+Measure the effect of caching tiles of `A` and `B` in shared memory
+before accumulating partial dot products.
+
+Make shortcut:
+
+```bash
+make run-tiled
+```
+
+### Tile-Size Sweep
+
+File:
+
+```text
+matmul_tile_sweep.cu
+```
+
+Usage:
+
+```bash
+./matmul_tile_sweep <matrix_size> <iterations> [tile_dim...]
+```
+
+Example:
+
+```bash
+./matmul_tile_sweep 1024 20 8 16 32
+```
+
+Purpose:
+
+Run the shared-memory tiled kernel with multiple tile sizes so the
+runtime, throughput, shared-memory usage, and block shape can be
+compared directly.
+
+Make shortcut:
+
+```bash
+make run-tile-sweep
+```
+
+### Register Blocking
+
+File:
+
+```text
+matmul_register_blocking.cu
+```
+
+Usage:
+
+```bash
+./matmul_register_blocking <matrix_size> <tile_dim> <iterations>
+```
+
+Example:
+
+```bash
+./matmul_register_blocking 1024 16 20
+```
+
+Purpose:
+
+Compute two output columns per thread so one loaded `A` value can be
+reused across multiple accumulators in registers.
+
+Make shortcut:
+
+```bash
+make run-register-blocking
+```
+
+### Memory Layout
+
+File:
+
+```text
+matmul_memory_layout.cu
+```
+
+Usage:
+
+```bash
+./matmul_memory_layout <matrix_size> <block_dim> <iterations>
+```
+
+Example:
+
+```bash
+./matmul_memory_layout 1024 16 20
+```
+
+Purpose:
+
+Compare a normal `B[k][col]` access pattern against a pre-transposed
+`B` layout to study how contiguous access changes performance.
+
+Make shortcut:
+
+```bash
+make run-memory-layout
+```
+
+### cuBLAS Comparison
+
+File:
+
+```text
+matmul_cublas.cu
+```
+
+Usage:
+
+```bash
+./matmul_cublas <matrix_size> <tile_dim> <iterations>
+```
+
+Example:
+
+```bash
+./matmul_cublas 1024 16 20
+```
+
+Purpose:
+
+Compare the custom shared-memory tiled kernel against NVIDIA's
+`cublasSgemm` implementation.
+
+Make shortcut:
+
+```bash
+make run-cublas
+```
+
+### Recording Logs
+
+Append experiment output to the lab log:
+
+```bash
+./matmul_tile_sweep 1024 20 8 16 32 | tee -a std_record.log
+./matmul_register_blocking 1024 16 20 | tee -a std_record.log
+./matmul_memory_layout 1024 16 20 | tee -a std_record.log
+./matmul_cublas 1024 16 20 | tee -a std_record.log
+```
 
 ## Optimization 02B Template - Shared Memory Tiling
 
