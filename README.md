@@ -164,13 +164,15 @@ The goal is to understand **why** the GPU behaves the way it does.
 - [x] Proper microbenchmark
 - [x] Memory bandwidth analysis
 - [x] Memory access experiments
-- [ ] Matrix multiplication
+- [x] Matrix multiplication
 
 ## Current Focus
 
-Week 1 / Experiment 02:
+Week 1 / Experiment 03:
 
-- Build a naive CUDA matrix-multiplication benchmark.
-- Measure kernel time and achieved GFLOP/s.
-- Compare the bottleneck against vector addition.
-- Use the result to start reasoning about arithmetic intensity.
+- Implement tiled matrix multiplication using shared memory.
+- Compare the tiled kernel against the naive matrix-multiplication
+  baseline.
+- Explain how shared-memory reuse changes global-memory traffic.
+- Use the matrix-multiplication lab templates to record each optimization
+  before moving to the next one.
