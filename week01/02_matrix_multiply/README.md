@@ -123,7 +123,7 @@ a time.
 | ---: | --------: | ---------: | ------------: | ------: | ------ |
 |  512 |        16 |         20 |         0.614 | 436.875 | PASS   |
 | 1024 |        16 |         20 |         4.792 | 448.103 | PASS   |
-| 2048 |        16 |         10 |        39.023 | 440.248 | PASS   |
+| 2048 |        16 |         10 |        39.023 | 440.248 | not recorded |
 
 Recorded from:
 
@@ -139,18 +139,14 @@ Detailed timing:
 | 1024 |      4.0 MiB | 64 x 64   |         4.733 |         4.825 |         4.792 |
 | 2048 |     16.0 MiB | 128 x 128 |        38.626 |        39.327 |        39.023 |
 
-Then test block shape:
-
-| N    | Block dim | Iterations | Avg time (ms) | GFLOP/s | Result |
-| ---: | --------: | ---------: | ------------: | ------: | ------ |
-| 1024 |         8 |         20 |               |         |        |
-| 1024 |        16 |         20 |               |         |        |
-| 1024 |        32 |         20 |               |         |        |
+The later tile-size sweep records the measured `8 x 8`, `16 x 16`, and
+`32 x 32` shared-memory block cases.
 
 ## Observation
 
-The naive matrix-multiplication kernel passes correctness for all tested
-sizes.
+The naive matrix-multiplication kernel explicitly records PASS for the
+`512 x 512` and `1024 x 1024` runs. The `2048 x 2048` timing is recorded,
+but the raw log does not include its final correctness line.
 
 Throughput is stable across the size sweep:
 
@@ -202,6 +198,40 @@ the kernel closer to the GPU's compute capability.
 | 02D  | Register blocking | Compute multiple output values per thread | Complete |
 | 02E  | Memory-layout experiment | Compare normal `B` access with transposed or reordered `B` | Complete |
 | 02F  | cuBLAS comparison | Compare custom kernels against `cublasSgemm` | Complete |
+
+## Experiment Coverage
+
+The log contains six matrix-multiplication experiment groups:
+
+| Log section | Source file | What it measures | Written below |
+| ----------- | ----------- | ---------------- | ------------- |
+| `matmul_naive` | `matmul_naive.cu` | naive global-memory baseline | yes |
+| `matmul_tiled` | `matmul_tiled.cu` | shared-memory tiled baseline | yes |
+| `matmul_tile_sweep` | `matmul_tile_sweep.cu` | `8 x 8`, `16 x 16`, and `32 x 32` tile sizes | yes |
+| `matmul_register_blocking` | `matmul_register_blocking.cu` | two output values per thread | yes |
+| `matmul_memory_layout` | `matmul_memory_layout.cu` | normal `B` vs pre-transposed `B` | yes |
+| `matmul_cublas` | `matmul_cublas.cu` | custom tiled kernel vs `cublasSgemm` | yes |
+
+## Comparison Summary
+
+All rows below use the `1024 x 1024` measurements from `std_record.log`.
+
+| Experiment | Kernel or variant | Avg time (ms) | GFLOP/s | Comparison |
+| ---------- | ----------------- | ------------: | ------: | ---------- |
+| Naive baseline | `matmul_naive` | 4.792 | 448.103 | baseline |
+| Shared memory | `matmul_tiled` | 2.133 | 1006.580 | 2.25x faster than naive |
+| Tile sweep | `8 x 8` tile | 2.976 | 721.548 | slower than `16 x 16` and `32 x 32` |
+| Tile sweep | `16 x 16` tile | 2.369 | 906.614 | middle result in sweep |
+| Tile sweep | `32 x 32` tile | 2.160 | 994.135 | fastest tile-sweep result |
+| Register blocking | 2 outputs/thread | 1.564 | 1373.441 | 1.36x faster than tiled baseline |
+| Memory layout | normal `B` | 4.927 | 435.837 | baseline for layout test |
+| Memory layout | transposed `B` | 18.258 | 117.619 | 3.71x slower than normal `B` |
+| cuBLAS comparison | custom tiled | 2.125 | 1010.346 | custom kernel in same program |
+| cuBLAS comparison | `cublasSgemm` | 0.284 | 7559.304 | 7.48x faster than custom tiled |
+
+The strongest custom teaching kernel is register blocking at
+1373.441 GFLOP/s. The fastest overall result is `cublasSgemm` at
+7559.304 GFLOP/s.
 
 ## Executable Usage
 
