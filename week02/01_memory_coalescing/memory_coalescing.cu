@@ -26,21 +26,61 @@ struct Case
     int parameter;
 };
 
+/*
+Learning task for this lab:
+
+You will finish two tiny copy kernels. Each thread produces exactly one
+output element, so the math is intentionally simple. The only thing that
+changes between cases is the input address read by neighboring threads in
+the same warp.
+
+Goal:
+
+- Understand what "memory coalescing" means at the warp level.
+- Compare contiguous, offset, and strided global-memory reads.
+- See why a kernel can move the same number of useful bytes but still run
+  much slower when the warp's addresses are spread out.
+
+The benchmark harness below is already complete. Your job is only to fill
+in the two kernel TODO sections and then compare the measured bandwidths.
+*/
+
 __global__ void copy_offset(const float *input,
                             float *output,
                             int n,
                             int offset)
 {
-    // TODO: Compute this thread's global element index.
+    // Task: implement the "offset copy" pattern.
     //
-    // TODO: If the element is in range, copy from the offset input
+    // This is the gentle coalescing case. Neighboring threads should still
+    // read neighboring floats, but the whole warp starts reading from a
+    // shifted location in the input array.
+    //
+    // Example with offset = 1:
+    //
+    //     thread lane:      0      1      2      3
+    //     output index:     0      1      2      3
+    //     input index:      1      2      3      4
+    //
+    // The addresses are still adjacent, so this should usually stay close
+    // to the contiguous case. Some offsets can be a little worse because a
+    // warp may touch one extra memory segment.
+    //
+    // TODO 1: Compute this thread's global output index.
+    //
+    // Hint: combine blockIdx.x, blockDim.x, and threadIdx.x. This value is
+    // commonly named i, idx, or global_id.
+    //
+    // TODO 2: If the output index is in range, copy from the offset input
     // address into the matching output element.
     //
     // The access pattern should be:
     //
     //     output[i] = input[i + offset]
     //
-    // Think about what addresses neighboring threads in a warp read.
+    // After implementing it, compare offset 0, 1, 2, 4, and 8. Your main
+    // observation should be about whether shifting the start address hurts
+    // bandwidth as much as striding does.
     (void)input;
     (void)output;
     (void)n;
@@ -52,16 +92,38 @@ __global__ void copy_stride(const float *input,
                             int n,
                             int stride)
 {
-    // TODO: Compute this thread's global element index.
+    // Task: implement the "strided copy" pattern.
     //
-    // TODO: If the element is in range, copy from the strided input
+    // This is the main coalescing stress test. Neighboring threads still
+    // write neighboring output elements, but they read input elements that
+    // are farther apart.
+    //
+    // Example with stride = 4:
+    //
+    //     thread lane:      0      1      2      3
+    //     output index:     0      1      2      3
+    //     input index:      0      4      8      12
+    //
+    // A warp now asks for scattered input addresses. The GPU may need more
+    // memory transactions to serve the same 32 useful floats, so useful
+    // bandwidth should drop as stride increases.
+    //
+    // TODO 1: Compute this thread's global output index.
+    //
+    // Use the same thread-to-output mapping as copy_offset. Keeping that
+    // mapping fixed makes the benchmark isolate the cost of the input read
+    // pattern.
+    //
+    // TODO 2: If the output index is in range, copy from the strided input
     // address into the matching output element.
     //
     // The access pattern should be:
     //
     //     output[i] = input[i * stride]
     //
-    // Use a wide enough integer type for the input index.
+    // Use a wide enough integer type for the input index. The input buffer
+    // is deliberately larger than the output buffer so that i * stride is
+    // valid for every benchmark case.
     (void)input;
     (void)output;
     (void)n;
@@ -144,6 +206,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // These cases form the experiment matrix. Offset 0 is the contiguous
+    // baseline. The other offset cases test alignment shifts. The stride
+    // cases test increasingly non-coalesced reads.
     std::vector<Case> cases = {
         {"offset", 0},
         {"offset", 1},
