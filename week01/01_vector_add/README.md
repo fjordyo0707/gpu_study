@@ -425,3 +425,8 @@ GP102 performance counters.
 
 8. What percentage of theoretical bandwidth can this simple kernel
    realistically achieve?
+
+
+## Hands on practice
+1. How to write kernel function of matrix multiplication in cuda?
+2. How to write kernel function of tiled matrix multoplication in cuda?
