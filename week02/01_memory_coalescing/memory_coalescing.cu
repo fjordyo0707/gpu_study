@@ -41,10 +41,10 @@ __global__ void copy_offset(const float *input,
     //     output[i] = input[i + offset]
     //
     // Think about what addresses neighboring threads in a warp read.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)offset;
+    int index =  blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
+        output[index] = input[index + offset];
+    }
 }
 
 __global__ void copy_stride(const float *input,
@@ -66,6 +66,10 @@ __global__ void copy_stride(const float *input,
     (void)output;
     (void)n;
     (void)stride;
+    int index =  blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < n) {
+        output[index] = input[index * stride];
+    }
 }
 
 int parse_positive_int(const char *value, const char *name)

@@ -1,0 +1,74 @@
+./memory_coalescing 16777216 256 100
+memory_coalescing
+Elements            = 16777216
+Input bytes         = 512.000 MiB
+Output bytes        = 64.000 MiB
+Threads/block       = 256
+Blocks              = 65536
+Warm-up launches    = 3
+Iterations          = 100
+
+Pattern             = offset
+Parameter           = 0
+Min kernel time     = 0.371 ms
+Max kernel time     = 0.374 ms
+Average kernel time = 0.373 ms
+Useful bandwidth    = 359.749 GB/s
+Result              = PASS
+
+Pattern             = offset
+Parameter           = 1
+Min kernel time     = 0.379 ms
+Max kernel time     = 0.389 ms
+Average kernel time = 0.380 ms
+Useful bandwidth    = 352.894 GB/s
+Result              = PASS
+
+Pattern             = offset
+Parameter           = 2
+Min kernel time     = 0.379 ms
+Max kernel time     = 0.382 ms
+Average kernel time = 0.380 ms
+Useful bandwidth    = 353.056 GB/s
+Result              = PASS
+
+Pattern             = offset
+Parameter           = 4
+Min kernel time     = 0.378 ms
+Max kernel time     = 0.389 ms
+Average kernel time = 0.380 ms
+Useful bandwidth    = 353.304 GB/s
+Result              = PASS
+
+Pattern             = offset
+Parameter           = 8
+Min kernel time     = 0.394 ms
+Max kernel time     = 0.399 ms
+Average kernel time = 0.395 ms
+Useful bandwidth    = 339.938 GB/s
+Result              = PASS
+
+Pattern             = stride
+Parameter           = 2
+Min kernel time     = 0.570 ms
+Max kernel time     = 0.584 ms
+Average kernel time = 0.572 ms
+Useful bandwidth    = 234.573 GB/s
+Result              = PASS
+
+Pattern             = stride
+Parameter           = 4
+Min kernel time     = 0.932 ms
+Max kernel time     = 0.936 ms
+Average kernel time = 0.934 ms
+Useful bandwidth    = 143.735 GB/s
+Result              = PASS
+
+Pattern             = stride
+Parameter           = 8
+Min kernel time     = 1.711 ms
+Max kernel time     = 1.716 ms
+Average kernel time = 1.713 ms
+Useful bandwidth    = 78.364 GB/s
+Result              = PASS
+
