@@ -29,7 +29,7 @@ struct Case
 /*
 Learning task for this lab:
 
-You will finish two tiny copy kernels. Each thread produces exactly one
+This lab uses two tiny copy kernels. Each thread produces exactly one
 output element, so the math is intentionally simple. The only thing that
 changes between cases is the input address read by neighboring threads in
 the same warp.
@@ -41,8 +41,9 @@ Goal:
 - See why a kernel can move the same number of useful bytes but still run
   much slower when the warp's addresses are spread out.
 
-The benchmark harness below is already complete. Your job is only to fill
-in the two kernel TODO sections and then compare the measured bandwidths.
+The benchmark harness below keeps everything fixed except the input
+address pattern, so the measured bandwidth difference comes from
+coalescing behavior.
 */
 
 __global__ void copy_offset(const float *input,
@@ -66,12 +67,12 @@ __global__ void copy_offset(const float *input,
     // to the contiguous case. Some offsets can be a little worse because a
     // warp may touch one extra memory segment.
     //
-    // TODO 1: Compute this thread's global output index.
+    // Step 1: Compute this thread's global output index.
     //
     // Hint: combine blockIdx.x, blockDim.x, and threadIdx.x. This value is
     // commonly named i, idx, or global_id.
     //
-    // TODO 2: If the output index is in range, copy from the offset input
+    // Step 2: If the output index is in range, copy from the offset input
     // address into the matching output element.
     //
     // The access pattern should be:
@@ -81,10 +82,13 @@ __global__ void copy_offset(const float *input,
     // After implementing it, compare offset 0, 1, 2, 4, and 8. Your main
     // observation should be about whether shifting the start address hurts
     // bandwidth as much as striding does.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)offset;
+
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < n)
+    {
+        output[index] = input[index + offset];
+    }
 }
 
 __global__ void copy_stride(const float *input,
@@ -108,13 +112,13 @@ __global__ void copy_stride(const float *input,
     // memory transactions to serve the same 32 useful floats, so useful
     // bandwidth should drop as stride increases.
     //
-    // TODO 1: Compute this thread's global output index.
+    // Step 1: Compute this thread's global output index.
     //
     // Use the same thread-to-output mapping as copy_offset. Keeping that
     // mapping fixed makes the benchmark isolate the cost of the input read
     // pattern.
     //
-    // TODO 2: If the output index is in range, copy from the strided input
+    // Step 2: If the output index is in range, copy from the strided input
     // address into the matching output element.
     //
     // The access pattern should be:
@@ -124,10 +128,15 @@ __global__ void copy_stride(const float *input,
     // Use a wide enough integer type for the input index. The input buffer
     // is deliberately larger than the output buffer so that i * stride is
     // valid for every benchmark case.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)stride;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (index < n)
+    {
+        size_t input_index =
+            static_cast<size_t>(index) * static_cast<size_t>(stride);
+
+        output[index] = input[input_index];
+    }
 }
 
 int parse_positive_int(const char *value, const char *name)

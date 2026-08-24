@@ -30,28 +30,28 @@ Strided access should become progressively slower because neighboring
 threads touch addresses farther apart, increasing wasted memory traffic
 per useful float copied.
 
-## Implementation TODOs
+## Implementation Status
 
-This lab is intentionally left as a starter exercise.
+This lab has been completed and recorded in:
 
-Fill in the TODO sections in:
+```text
+std_record.log
+```
+
+The critical implementation work was in:
 
 ```text
 memory_coalescing.cu
 ```
 
-Required implementation work:
+Implemented kernel tasks:
 
 1. Compute the global thread index in `copy_offset`.
 2. Implement the offset access pattern.
 3. Compute the global thread index in `copy_stride`.
 4. Implement the strided access pattern.
 
-The benchmark harness, timing logic, result verification, and reporting
-are already provided.
-
-The program may compile before the TODOs are complete, but the benchmark
-results are not meaningful until every case prints:
+The benchmark result is valid because every measured case printed:
 
 ```text
 Result              = PASS
@@ -106,6 +106,22 @@ Default measured cases:
 - `stride 2`
 - `stride 4`
 - `stride 8`
+
+## Recorded Run
+
+```text
+./memory_coalescing 16777216 256 100
+```
+
+| Setting | Value |
+| ------- | ----: |
+| Elements | 16777216 |
+| Input bytes | 512.000 MiB |
+| Output bytes | 64.000 MiB |
+| Threads/block | 256 |
+| Blocks | 65536 |
+| Warm-up launches | 3 |
+| Iterations | 100 |
 
 ## Metrics
 
@@ -163,27 +179,33 @@ Neighboring threads read addresses separated by `stride` floats.
 
 | Pattern | Parameter | Threads/block | Avg time (ms) | Useful bandwidth (GB/s) | Result |
 | ------- | --------: | ------------: | ------------: | ----------------------: | ------ |
-| offset  |         0 |           256 |               |                         |        |
-| offset  |         1 |           256 |               |                         |        |
-| offset  |         2 |           256 |               |                         |        |
-| offset  |         4 |           256 |               |                         |        |
-| offset  |         8 |           256 |               |                         |        |
-| stride  |         2 |           256 |               |                         |        |
-| stride  |         4 |           256 |               |                         |        |
-| stride  |         8 |           256 |               |                         |        |
+| offset  |         0 |           256 |         0.373 |                 359.749 | PASS   |
+| offset  |         1 |           256 |         0.380 |                 352.894 | PASS   |
+| offset  |         2 |           256 |         0.380 |                 353.056 | PASS   |
+| offset  |         4 |           256 |         0.380 |                 353.304 | PASS   |
+| offset  |         8 |           256 |         0.395 |                 339.938 | PASS   |
+| stride  |         2 |           256 |         0.572 |                 234.573 | PASS   |
+| stride  |         4 |           256 |         0.934 |                 143.735 | PASS   |
+| stride  |         8 |           256 |         1.713 |                  78.364 | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
 
 ## Detailed Timing
 
 | Pattern | Parameter | Min time (ms) | Max time (ms) | Avg time (ms) |
 | ------- | --------: | ------------: | ------------: | ------------: |
-| offset  |         0 |               |               |               |
-| offset  |         1 |               |               |               |
-| offset  |         2 |               |               |               |
-| offset  |         4 |               |               |               |
-| offset  |         8 |               |               |               |
-| stride  |         2 |               |               |               |
-| stride  |         4 |               |               |               |
-| stride  |         8 |               |               |               |
+| offset  |         0 |         0.371 |         0.374 |         0.373 |
+| offset  |         1 |         0.379 |         0.389 |         0.380 |
+| offset  |         2 |         0.379 |         0.382 |         0.380 |
+| offset  |         4 |         0.378 |         0.389 |         0.380 |
+| offset  |         8 |         0.394 |         0.399 |         0.395 |
+| stride  |         2 |         0.570 |         0.584 |         0.572 |
+| stride  |         4 |         0.932 |         0.936 |         0.934 |
+| stride  |         8 |         1.711 |         1.716 |         1.713 |
 
 ## Observation Questions
 
@@ -193,9 +215,44 @@ Neighboring threads read addresses separated by `stride` floats.
 
 ## Observation
 
+Offset accesses stayed close to the contiguous baseline:
+
+- `offset 0`: 359.749 GB/s
+- `offset 1`: 352.894 GB/s
+- `offset 2`: 353.056 GB/s
+- `offset 4`: 353.304 GB/s
+- `offset 8`: 339.938 GB/s
+
+The small offset cases are only slightly slower because neighboring
+threads still read neighboring floats. The warp may start at a less
+convenient address, but the access pattern is still mostly coalesced.
+
+Strided accesses became much slower as the stride increased:
+
+- `stride 2`: 234.573 GB/s
+- `stride 4`: 143.735 GB/s
+- `stride 8`: 78.364 GB/s
+
+Compared with `offset 0`, `stride 8` keeps only about 21.8% of the useful
+bandwidth.
 
 ## Interpretation
 
+This result shows that coalescing depends on the addresses requested by
+neighboring threads in a warp, not just on how much useful data the kernel
+copies.
+
+For offset access, lane 0 reads `input[offset]`, lane 1 reads
+`input[offset + 1]`, lane 2 reads `input[offset + 2]`, and so on. The warp
+still asks for a compact range of memory.
+
+For strided access, lane 0 reads `input[0]`, lane 1 reads `input[stride]`,
+lane 2 reads `input[2 * stride]`, and so on. The useful values are spread
+across a wider memory region, so the GPU needs more memory transactions
+to collect the same number of useful floats.
+
+That is why useful bandwidth drops from 359.749 GB/s for contiguous reads
+to 78.364 GB/s for `stride 8`.
 
 ## Connection To Previous Labs
 
@@ -211,9 +268,15 @@ same warp.
 
 ## Next Experiment
 
-After memory coalescing, measure cache behavior:
+The next Week 2 step is Experiment 02 - Cache Behavior:
 
 - repeated reads from the same working set
 - working-set size sweep
 - L2 cache effects
 - cache reuse vs streaming access
+
+Start here:
+
+```text
+../02_cache_behavior
+```

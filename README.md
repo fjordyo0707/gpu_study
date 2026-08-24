@@ -170,13 +170,15 @@ The goal is to understand **why** the GPU behaves the way it does.
 - [x] Matrix multiplication register blocking
 - [x] Matrix multiplication memory-layout experiment
 - [x] Matrix multiplication cuBLAS comparison
-- [ ] Warp-level memory coalescing
+- [x] Warp-level memory coalescing
+- [ ] Cache behavior / working-set size sweep
 
 ## Current Focus
 
-Week 2 / Experiment 01:
+Week 2 / Experiment 02:
 
-- Measure contiguous, offset, and strided global-memory access patterns.
-- Explain the results using warp-level memory coalescing.
-- Connect the results to the vector-add stride experiment and the
-  matrix-multiply memory-layout experiment.
+- Measure repeated reads from different working-set sizes.
+- Observe when cache reuse helps and when the workload behaves more like
+  streaming global-memory traffic.
+- Connect the result back to memory coalescing and the Week 2 memory
+  hierarchy roadmap.
