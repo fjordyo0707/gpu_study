@@ -15,6 +15,27 @@ The experiment is intentionally simple so that the relationship between:
 
 can be studied clearly.
 
+## Recommended Reading
+
+- [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html):
+  read the programming model, kernel launch, thread hierarchy, and global
+  memory basics alongside this first lab.
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html):
+  use the performance metrics and bandwidth sections to understand why
+  this README computes effective GB/s.
+- [How to Implement Performance Metrics in CUDA C/C++](https://developer.nvidia.com/blog/how-implement-performance-metrics-cuda-cc/):
+  a practical companion for CUDA events, elapsed kernel time, and
+  bandwidth calculations.
+- [How to Access Global Memory Efficiently in CUDA C/C++ Kernels](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/):
+  the key background for the stride experiments and why neighboring
+  thread addresses matter.
+- [Roofline: An Insightful Visual Performance Model for Multicore Architectures](https://dl.acm.org/doi/10.1145/1498765.1498785):
+  classic computer-architecture paper for understanding memory-bound
+  kernels like vector add.
+- [Hierarchical Roofline Analysis: How to Collect Data using Performance Tools on Intel CPUs and NVIDIA GPUs](https://arxiv.org/abs/2009.02449):
+  optional follow-up for connecting simple bandwidth measurements to
+  profiler-based cache and memory hierarchy analysis.
+
 ---
 
 ## Hardware

@@ -152,6 +152,51 @@ Every experiment should follow:
 
 The goal is to understand **why** the GPU behaves the way it does.
 
+## Recommended Reading Convention
+
+Every practice lab README should include a `## Recommended Reading`
+section near the top.
+
+Keep the list short and useful:
+
+- Prefer official documentation for CUDA behavior and tools.
+- Add NVIDIA technical blogs or classic papers when they explain the
+  experiment especially well.
+- Include one sentence explaining why each reading matters for the lab.
+- Keep optional/stretch material clearly marked so it does not distract
+  from the current exercise.
+
+Core references for Week 1 and Week 2:
+
+- [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html):
+  the main reference for CUDA's programming model, kernels, thread
+  hierarchy, memory spaces, and execution behavior.
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html):
+  the practical performance guide for timing, bandwidth, coalescing,
+  shared memory, occupancy, and optimization workflow.
+- [Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html):
+  the profiler reference to use when a benchmark number needs to be
+  explained with memory and compute counters.
+
+Research paper track:
+
+- [Roofline: An Insightful Visual Performance Model for Multicore Architectures](https://dl.acm.org/doi/10.1145/1498765.1498785)
+  by Williams, Waterman, and Patterson: the classic, readable bridge from
+  benchmark numbers to computer-architecture limits.
+- [Hierarchical Roofline Analysis: How to Collect Data using Performance Tools on Intel CPUs and NVIDIA GPUs](https://arxiv.org/abs/2009.02449)
+  by Yang: a practical follow-up for turning profiler counters into
+  cache-level performance explanations.
+- [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135)
+  by Dao et al.: a modern, approachable example of designing an algorithm
+  around GPU memory hierarchy instead of FLOP count alone.
+- [Dissecting the NVIDIA Hopper Architecture through Microbenchmarking and Multiple Level Analysis](https://arxiv.org/abs/2501.12084)
+  by Luo et al.: recent GPU architecture research; read the abstract,
+  introduction, memory-subsystem parts, and figures first.
+- [Dissecting the NVIDIA Blackwell Architecture with Microbenchmarks](https://arxiv.org/abs/2507.10789)
+  by Jarmusch, Graddon, and Chandrasekaran: latest stretch reading; focus
+  on methodology and architecture patterns rather than exact numbers for
+  your GTX 1080 Ti.
+
 ## Current Progress
 
 - [x] Ubuntu + GPU environment

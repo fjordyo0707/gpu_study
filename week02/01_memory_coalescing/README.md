@@ -30,6 +30,27 @@ Strided access should become progressively slower because neighboring
 threads touch addresses farther apart, increasing wasted memory traffic
 per useful float copied.
 
+## Recommended Reading
+
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html):
+  read the coalesced global-memory access sections, especially simple,
+  misaligned, and strided access patterns.
+- [How to Access Global Memory Efficiently in CUDA C/C++ Kernels](https://developer.nvidia.com/blog/how-access-global-memory-efficiently-cuda-c-kernels/):
+  a direct companion for this lab's offset and stride measurements.
+- [An Efficient Matrix Transpose in CUDA C/C++](https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/):
+  connects coalescing to matrix layout and shows how shared memory can
+  reorder strided global accesses.
+- [Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html):
+  use the memory workload analysis sections later to confirm whether
+  uncoalesced accesses increase memory transactions.
+- [Hierarchical Roofline Analysis: How to Collect Data using Performance Tools on Intel CPUs and NVIDIA GPUs](https://arxiv.org/abs/2009.02449):
+  a practical paper for learning how memory hierarchy effects show up in
+  measured counters, not just wall-clock time.
+- [Dissecting the NVIDIA Hopper Architecture through Microbenchmarking and Multiple Level Analysis](https://arxiv.org/abs/2501.12084):
+  recent architecture paper; skim the memory subsystem and global-memory
+  access parts to see how researchers design microbenchmarks like this
+  lab.
+
 ## Implementation Status
 
 This lab has been completed and recorded in:

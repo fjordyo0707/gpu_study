@@ -23,6 +23,28 @@ reads can be served from cache.
 Large working sets should eventually become slower because the data no
 longer fits well in cache, so more reads must be served from DRAM.
 
+## Recommended Reading
+
+- [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html):
+  use the memory hierarchy and L2 cache control material as the reference
+  model for this lab. Some advanced cache-control APIs may target newer
+  GPUs than the GTX 1080 Ti, but the concepts still matter.
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html):
+  read the device memory spaces, L2 cache, and shared-memory sections to
+  separate cache reuse from explicit shared-memory reuse.
+- [Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html):
+  the essential follow-up when you want cache hit rates and memory
+  workload counters instead of only timing numbers.
+- [Using Shared Memory in CUDA C/C++](https://developer.nvidia.com/blog/using-shared-memory-cuda-cc/):
+  useful contrast reading because shared memory is programmer-managed
+  cache-like storage, unlike hardware-managed L1/L2 cache.
+- [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135):
+  a modern and readable paper about reducing traffic between GPU memory
+  levels with tiling and reuse.
+- [Dissecting the NVIDIA Blackwell Architecture with Microbenchmarks](https://arxiv.org/abs/2507.10789):
+  latest stretch paper; read the cache, memory hierarchy, and scheduling
+  sections for research-style examples of what to measure next.
+
 ## Implementation TODOs
 
 This lab is intentionally left as a starter exercise.

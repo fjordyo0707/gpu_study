@@ -50,6 +50,30 @@ However, the naive kernel reads from global memory inside the inner loop
 without using shared memory tiling, so it may still waste a large amount
 of memory bandwidth.
 
+## Recommended Reading
+
+- [CUDA C++ Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html):
+  focus on performance metrics, shared memory, and the matrix
+  multiplication examples before comparing naive and tiled kernels.
+- [Matrix Multiplication Background User's Guide](https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html):
+  explains GEMM shape, FLOP counts, arithmetic intensity, and why tiling
+  is central to high-performance matrix multiplication.
+- [cuBLAS Documentation](https://docs.nvidia.com/cuda/cublas/index.html):
+  use this when comparing your teaching kernels against NVIDIA's
+  optimized SGEMM implementation.
+- [An Efficient Matrix Transpose in CUDA C/C++](https://developer.nvidia.com/blog/efficient-matrix-transpose-cuda-cc/):
+  useful for understanding the memory-layout experiment, coalesced global
+  access, shared memory reordering, and bank conflicts.
+- [CUTLASS Overview](https://docs.nvidia.com/cutlass/latest/overview.html):
+  optional stretch reading after this lab; it shows how production GEMM
+  kernels organize tiling, data movement, and reusable abstractions.
+- [Roofline: An Insightful Visual Performance Model for Multicore Architectures](https://dl.acm.org/doi/10.1145/1498765.1498785):
+  read this to frame why matrix multiplication can move from memory-bound
+  behavior toward compute-bound behavior as arithmetic intensity rises.
+- [FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness](https://arxiv.org/abs/2205.14135):
+  modern paper that makes tiling and memory hierarchy feel practical; it
+  is not GEMM-only, but the IO-aware thinking is the same muscle.
+
 ## Build
 
 ```bash
