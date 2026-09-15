@@ -73,17 +73,21 @@ but `32 banks` is the right starting point for these experiments.
   stretch reading; skim the microbenchmarking methodology to see how
   architecture papers isolate one hardware behavior at a time.
 
-## Implementation TODOs
+## Implementation Status
 
-This lab is intentionally left as a starter exercise.
+This lab has been completed and recorded in:
 
-Fill in the TODO section in:
+```text
+std_record.log
+```
+
+The critical implementation work was in:
 
 ```text
 shared_bank_conflicts.cu
 ```
 
-Required implementation work:
+Implemented kernel tasks:
 
 1. Compute the global output index and whether this thread is in range.
 2. Compute the shared-memory index for this thread:
@@ -97,11 +101,7 @@ Required implementation work:
 5. Repeatedly read from `shared_values[shared_index]`, accumulate the
    value, and write the sum to output.
 
-The benchmark harness, timing logic, result verification, and reporting
-are already provided.
-
-The program may compile before the TODO is complete, but the benchmark
-results are not meaningful until every case prints:
+The benchmark result is valid because every measured case printed:
 
 ```text
 Result              = PASS
@@ -146,6 +146,42 @@ Make shortcut:
 make run
 ```
 
+## Recorded Runs
+
+Run 1:
+
+```text
+./shared_bank_conflicts 16777216 256 256 100
+```
+
+| Setting | Value |
+| ------- | ----: |
+| Elements | 16777216 |
+| Input bytes | 64.000 MiB |
+| Output bytes | 64.000 MiB |
+| Threads/block | 256 |
+| Blocks | 65536 |
+| Repeat accesses | 256 |
+| Warm-up launches | 3 |
+| Iterations | 100 |
+
+Run 2:
+
+```text
+./shared_bank_conflicts 33554432 256 256 100
+```
+
+| Setting | Value |
+| ------- | ----: |
+| Elements | 33554432 |
+| Input bytes | 128.000 MiB |
+| Output bytes | 128.000 MiB |
+| Threads/block | 256 |
+| Blocks | 131072 |
+| Repeat accesses | 256 |
+| Warm-up launches | 3 |
+| Iterations | 100 |
+
 ## Access Pattern
 
 Each thread stores one value into shared memory and then repeatedly reads
@@ -171,27 +207,45 @@ That means:
 - stride 4: four lanes map to each bank
 - stride 32: all lanes in a warp map to the same bank
 
-## Suggested Measurements
+## Measurement Table
 
-| Stride | Expected conflict | Shared memory/block | Avg time (ms) | Useful bandwidth (GB/s) | Result |
-| -----: | ----------------: | ------------------: | ------------: | ----------------------: | ------ |
-|      1 |             1-way |                     |               |                         |        |
-|      2 |             2-way |                     |               |                         |        |
-|      4 |             4-way |                     |               |                         |        |
-|      8 |             8-way |                     |               |                         |        |
-|     16 |            16-way |                     |               |                         |        |
-|     32 |            32-way |                     |               |                         |        |
+| Elements | Stride | Expected conflict | Shared memory/block | Avg time (ms) | Useful bandwidth (GB/s) | Result |
+| -------: | -----: | ----------------: | ------------------: | ------------: | ----------------------: | ------ |
+| 16777216 |      1 |             1-way |           1.000 KiB |         1.272 |               13606.793 | PASS   |
+| 16777216 |      2 |             2-way |           1.996 KiB |         1.268 |               13654.336 | PASS   |
+| 16777216 |      4 |             4-way |           3.988 KiB |         1.277 |               13563.397 | PASS   |
+| 16777216 |      8 |             8-way |           7.973 KiB |         1.289 |               13430.336 | PASS   |
+| 16777216 |     16 |            16-way |          15.941 KiB |         1.293 |               13388.629 | PASS   |
+| 16777216 |     32 |            32-way |          31.879 KiB |         1.736 |                9974.350 | PASS   |
+| 33554432 |      1 |             1-way |           1.000 KiB |         2.642 |               13106.189 | PASS   |
+| 33554432 |      2 |             2-way |           1.996 KiB |         2.619 |               13223.507 | PASS   |
+| 33554432 |      4 |             4-way |           3.988 KiB |         2.629 |               13172.527 | PASS   |
+| 33554432 |      8 |             8-way |           7.973 KiB |         2.613 |               13251.316 | PASS   |
+| 33554432 |     16 |            16-way |          15.941 KiB |         2.701 |               12820.762 | PASS   |
+| 33554432 |     32 |            32-way |          31.879 KiB |         3.396 |               10196.330 | PASS   |
+
+Recorded from:
+
+```text
+std_record.log
+```
 
 ## Detailed Timing
 
-| Stride | Min time (ms) | Max time (ms) | Avg time (ms) |
-| -----: | ------------: | ------------: | ------------: |
-|      1 |               |               |               |
-|      2 |               |               |               |
-|      4 |               |               |               |
-|      8 |               |               |               |
-|     16 |               |               |               |
-|     32 |               |               |               |
+| Elements | Stride | Min time (ms) | Max time (ms) | Avg time (ms) |
+| -------: | -----: | ------------: | ------------: | ------------: |
+| 16777216 |      1 |         1.261 |         1.286 |         1.272 |
+| 16777216 |      2 |         1.236 |         1.294 |         1.268 |
+| 16777216 |      4 |         1.259 |         1.296 |         1.277 |
+| 16777216 |      8 |         1.260 |         1.315 |         1.289 |
+| 16777216 |     16 |         1.271 |         1.321 |         1.293 |
+| 16777216 |     32 |         1.630 |         1.795 |         1.736 |
+| 33554432 |      1 |         2.119 |         3.258 |         2.642 |
+| 33554432 |      2 |         2.515 |         2.673 |         2.619 |
+| 33554432 |      4 |         2.469 |         2.693 |         2.629 |
+| 33554432 |      8 |         2.517 |         2.693 |         2.613 |
+| 33554432 |     16 |         2.540 |         3.888 |         2.701 |
+| 33554432 |     32 |         3.234 |         3.738 |         3.396 |
 
 ## Observation Questions
 
@@ -201,9 +255,54 @@ That means:
 
 ## Observation
 
+The middle strides did not form a clean monotonic slowdown:
+
+- For `16777216` elements, strides 1 through 16 stayed close together:
+  1.268 to 1.293 ms.
+- For `33554432` elements, strides 1 through 16 also stayed close:
+  2.613 to 2.701 ms.
+
+Stride 32 was the clear outlier:
+
+- `16777216` elements: 1.272 ms at stride 1 vs 1.736 ms at stride 32,
+  about 1.36x slower.
+- `33554432` elements: 2.642 ms at stride 1 vs 3.396 ms at stride 32,
+  about 1.29x slower.
+
+Useful bandwidth follows the same pattern. The first run drops from
+13606.793 GB/s at stride 1 to 9974.350 GB/s at stride 32. The second run
+drops from 13106.189 GB/s at stride 1 to 10196.330 GB/s at stride 32.
 
 ## Interpretation
 
+The high-level bank-conflict hypothesis was partly supported: the strongest
+expected conflict, stride 32, was clearly slower.
+
+However, the result does not show a smooth 1-way, 2-way, 4-way, 8-way,
+16-way, 32-way staircase. That means this benchmark is measuring more than
+only bank conflicts.
+
+Two details matter:
+
+1. Shared-memory usage grows with stride. Stride 1 uses about 1 KiB per
+   block, while stride 32 uses about 31.879 KiB per block. The stride 32
+   case can reduce occupancy because each block reserves much more shared
+   memory.
+2. The kernel repeatedly reads the same shared-memory address for each
+   thread. The compiler or hardware may keep some of that value close to
+   the thread after the first read, so repeated accesses may not expose
+   bank conflicts as strongly as a dependent shared-memory access pattern.
+
+So the safe conclusion is:
+
+- stride 32 is bad in this benchmark
+- stride 1 through 16 are very similar here
+- this benchmark is good for seeing a severe shared-memory pattern, but
+  it is not a perfectly isolated bank-conflict microbenchmark
+
+A stricter follow-up would keep shared-memory allocation constant across
+cases and use a dependent or volatile shared-memory load pattern so each
+repeat is forced to issue as a shared-memory access.
 
 ## Connection To Previous Labs
 
@@ -219,10 +318,15 @@ index pattern can serialize a warp even when the data is already on-chip.
 
 ## Next Experiment
 
-After bank conflicts, compare global-memory reuse against explicit
-shared-memory reuse:
+The next Week 2 step is Experiment 04 - Global Reuse vs Shared Reuse:
 
 - direct repeated global reads
 - shared-memory staging
 - padding to avoid shared-memory bank conflicts
 - when shared memory helps and when it just adds overhead
+
+Start here:
+
+```text
+../04_global_vs_shared_reuse
+```

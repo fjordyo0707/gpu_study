@@ -29,7 +29,7 @@ struct Case
 /*
 Learning task for this lab:
 
-You will finish one kernel that stages one value per thread in shared
+This lab uses one kernel that stages one value per thread in shared
 memory, then repeatedly reads it. The arithmetic is intentionally tiny.
 The experiment is about the shared-memory address pattern used by a warp.
 
@@ -39,8 +39,8 @@ Goal:
 - Understand why shared memory is split into banks.
 - Measure how power-of-two strides create bank conflicts.
 
-The benchmark harness below is complete. Your job is to fill in the kernel
-TODO without changing the cases, timing code, or verification code.
+The benchmark harness below keeps everything fixed except the shared-memory
+stride.
 */
 
 __global__ void shared_stride_read(const float *input,
@@ -68,24 +68,24 @@ __global__ void shared_stride_read(const float *input,
     // So stride 1 spreads a warp across banks, while stride 32 sends every
     // lane in a warp to the same bank.
     //
-    // TODO 1: Compute this thread's global output index.
+    // Step 1: Compute this thread's global output index.
     //
-    // TODO 2: Compute whether this thread is in range. Do not return before
+    // Step 2: Compute whether this thread is in range. Do not return before
     // __syncthreads(), because all threads in the block must reach the
     // synchronization point.
     //
-    // TODO 3: Compute shared_index = threadIdx.x * stride.
+    // Step 3: Compute shared_index = threadIdx.x * stride.
     //
-    // TODO 4: Store input[global_index] into shared_values[shared_index]
+    // Step 4: Store input[global_index] into shared_values[shared_index]
     // for in-range threads. Store 0.0f for out-of-range threads.
     //
-    // TODO 5: Synchronize the block.
+    // Step 5: Synchronize the block.
     //
-    // TODO 6: Repeatedly read shared_values[shared_index] into an
+    // Step 6: Repeatedly read shared_values[shared_index] into an
     // accumulator. Use a volatile shared-memory pointer if the compiler
     // tries to optimize the repeated reads away.
     //
-    // TODO 7: Write the accumulated result to output[global_index] for
+    // Step 7: Write the accumulated result to output[global_index] for
     // in-range threads.
     //
     // Observation goal after implementation:
@@ -94,22 +94,29 @@ __global__ void shared_stride_read(const float *input,
     // degree increases.
     int g_idx = blockIdx.x * blockDim.x + threadIdx.x;
     int s_idx = threadIdx.x * stride;
+
     if (g_idx < n)
+    {
         shared_values[s_idx] = input[g_idx];
+    }
     else
     {
         shared_values[s_idx] = 0.0f;
     }
+
     __syncthreads();
 
     float acc = 0.0f;
+
     for (int i = 0; i < repeat_accesses; ++i)
     {
         acc += shared_values[s_idx];
     }
 
-    output[g_idx] = acc;
-    return;
+    if (g_idx < n)
+    {
+        output[g_idx] = acc;
+    }
 }
 
 int parse_positive_int(const char *value, const char *name)

@@ -217,15 +217,16 @@ Research paper track:
 - [x] Matrix multiplication cuBLAS comparison
 - [x] Warp-level memory coalescing
 - [x] Cache behavior / working-set size sweep
-- [ ] Shared-memory bank conflicts
+- [x] Shared-memory bank conflicts
+- [ ] Global memory reuse vs shared-memory reuse
 
 ## Current Focus
 
-Week 2 / Experiment 03:
+Week 2 / Experiment 04:
 
-- Measure shared-memory access patterns with increasing bank-conflict
-  degree.
-- Explain why on-chip shared memory can still serialize a warp when the
-  address pattern maps many lanes to the same bank.
-- Connect shared-memory bank conflicts back to matrix transpose and
-  shared-memory tiling.
+- Compare repeated direct global-memory reads against explicit
+  shared-memory staging.
+- Measure when shared memory helps and when coalesced global loads plus
+  hardware cache are already good enough.
+- Connect the result back to matrix tiling, cache reuse, and shared-memory
+  overhead.
