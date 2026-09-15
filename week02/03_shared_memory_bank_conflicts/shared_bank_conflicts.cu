@@ -8,16 +8,16 @@
 #include <string>
 #include <vector>
 
-#define CHECK_CUDA(call)                                                       \
-    do                                                                         \
-    {                                                                          \
-        cudaError_t status = (call);                                           \
-        if (status != cudaSuccess)                                             \
-        {                                                                      \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__      \
-                      << ": " << cudaGetErrorString(status) << "\n";          \
-            return 1;                                                          \
-        }                                                                      \
+#define CHECK_CUDA(call)                                                 \
+    do                                                                   \
+    {                                                                    \
+        cudaError_t status = (call);                                     \
+        if (status != cudaSuccess)                                       \
+        {                                                                \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ \
+                      << ": " << cudaGetErrorString(status) << "\n";     \
+            return 1;                                                    \
+        }                                                                \
     } while (0)
 
 struct Case
@@ -92,12 +92,24 @@ __global__ void shared_stride_read(const float *input,
     //
     // Runtime should generally increase as the expected bank-conflict
     // degree increases.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)repeat_accesses;
-    (void)stride;
-    (void)shared_values;
+    int g_idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int s_idx = threadIdx.x * stride;
+    if (g_idx < n)
+        shared_values[s_idx] = input[g_idx];
+    else
+    {
+        shared_values[s_idx] = 0.0f;
+    }
+    __syncthreads();
+
+    float acc = 0.0f;
+    for (int i = 0; i < repeat_accesses; ++i)
+    {
+        acc += shared_values[s_idx];
+    }
+
+    output[g_idx] = acc;
+    return;
 }
 
 int parse_positive_int(const char *value, const char *name)
@@ -234,7 +246,7 @@ int main(int argc, char **argv)
     {
         size_t shared_elements =
             static_cast<size_t>(threads - 1) *
-            static_cast<size_t>(benchmark_case.stride) +
+                static_cast<size_t>(benchmark_case.stride) +
             1;
         size_t shared_bytes = shared_elements * sizeof(float);
         double shared_kib =

@@ -1,0 +1,129 @@
+./shared_bank_conflicts 16777216 256 256 100
+shared_bank_conflicts
+Elements            = 16777216
+Input bytes         = 64.000 MiB
+Output bytes        = 64.000 MiB
+Threads/block       = 256
+Blocks              = 65536
+Repeat accesses     = 256
+Warm-up launches    = 3
+Iterations          = 100
+
+Stride              = 1
+Expected conflict   = 1-way
+Shared memory/block = 1.000 KiB
+Min kernel time     = 1.261 ms
+Max kernel time     = 1.286 ms
+Average kernel time = 1.272 ms
+Useful bandwidth    = 13606.793 GB/s
+Result              = PASS
+
+Stride              = 2
+Expected conflict   = 2-way
+Shared memory/block = 1.996 KiB
+Min kernel time     = 1.236 ms
+Max kernel time     = 1.294 ms
+Average kernel time = 1.268 ms
+Useful bandwidth    = 13654.336 GB/s
+Result              = PASS
+
+Stride              = 4
+Expected conflict   = 4-way
+Shared memory/block = 3.988 KiB
+Min kernel time     = 1.259 ms
+Max kernel time     = 1.296 ms
+Average kernel time = 1.277 ms
+Useful bandwidth    = 13563.397 GB/s
+Result              = PASS
+
+Stride              = 8
+Expected conflict   = 8-way
+Shared memory/block = 7.973 KiB
+Min kernel time     = 1.260 ms
+Max kernel time     = 1.315 ms
+Average kernel time = 1.289 ms
+Useful bandwidth    = 13430.336 GB/s
+Result              = PASS
+
+Stride              = 16
+Expected conflict   = 16-way
+Shared memory/block = 15.941 KiB
+Min kernel time     = 1.271 ms
+Max kernel time     = 1.321 ms
+Average kernel time = 1.293 ms
+Useful bandwidth    = 13388.629 GB/s
+Result              = PASS
+
+Stride              = 32
+Expected conflict   = 32-way
+Shared memory/block = 31.879 KiB
+Min kernel time     = 1.630 ms
+Max kernel time     = 1.795 ms
+Average kernel time = 1.736 ms
+Useful bandwidth    = 9974.350 GB/s
+Result              = PASS
+
+shared_bank_conflicts
+Elements            = 33554432
+Input bytes         = 128.000 MiB
+Output bytes        = 128.000 MiB
+Threads/block       = 256
+Blocks              = 131072
+Repeat accesses     = 256
+Warm-up launches    = 3
+Iterations          = 100
+
+Stride              = 1
+Expected conflict   = 1-way
+Shared memory/block = 1.000 KiB
+Min kernel time     = 2.119 ms
+Max kernel time     = 3.258 ms
+Average kernel time = 2.642 ms
+Useful bandwidth    = 13106.189 GB/s
+Result              = PASS
+
+Stride              = 2
+Expected conflict   = 2-way
+Shared memory/block = 1.996 KiB
+Min kernel time     = 2.515 ms
+Max kernel time     = 2.673 ms
+Average kernel time = 2.619 ms
+Useful bandwidth    = 13223.507 GB/s
+Result              = PASS
+
+Stride              = 4
+Expected conflict   = 4-way
+Shared memory/block = 3.988 KiB
+Min kernel time     = 2.469 ms
+Max kernel time     = 2.693 ms
+Average kernel time = 2.629 ms
+Useful bandwidth    = 13172.527 GB/s
+Result              = PASS
+
+Stride              = 8
+Expected conflict   = 8-way
+Shared memory/block = 7.973 KiB
+Min kernel time     = 2.517 ms
+Max kernel time     = 2.693 ms
+Average kernel time = 2.613 ms
+Useful bandwidth    = 13251.316 GB/s
+Result              = PASS
+
+Stride              = 16
+Expected conflict   = 16-way
+Shared memory/block = 15.941 KiB
+Min kernel time     = 2.540 ms
+Max kernel time     = 3.888 ms
+Average kernel time = 2.701 ms
+Useful bandwidth    = 12820.762 GB/s
+Result              = PASS
+
+Stride              = 32
+Expected conflict   = 32-way
+Shared memory/block = 31.879 KiB
+Min kernel time     = 3.234 ms
+Max kernel time     = 3.738 ms
+Average kernel time = 3.396 ms
+Useful bandwidth    = 10196.330 GB/s
+Result              = PASS
+
