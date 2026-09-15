@@ -24,6 +24,38 @@ shared-memory banks.
 Power-of-two strides should become slower as the conflict degree grows,
 because multiple lanes in the same warp need service from the same bank.
 
+## Shared Memory Bank Model
+
+For this lab, use this mental model:
+
+```text
+shared-memory banks per SM = 32
+warp lanes                 = 32
+```
+
+The 32 banks are part of the SM's shared-memory system. They are not
+private to one warp. A warp also has 32 lanes, and when that warp executes
+a shared-memory instruction, those lanes issue their shared-memory address
+requests together.
+
+The ideal case is that the 32 lanes hit 32 different banks:
+
+```text
+warp lane:  0   1   2   3   ... 31
+bank:       0   1   2   3   ... 31
+```
+
+Then the bank requests can be served in parallel.
+
+If multiple lanes request different addresses in the same bank, that bank
+must serve those requests in multiple steps. That is a bank conflict.
+
+For NVIDIA CUDA GPUs, 32 shared-memory banks is the standard model for
+modern architectures, including this lab's GTX 1080 Ti / Pascal GPU. The
+exact behavior can vary across architectures because bank width, broadcast
+rules, multicast behavior, and conflict handling have changed over time,
+but `32 banks` is the right starting point for these experiments.
+
 ## Recommended Reading
 
 - [CUDA Programming Guide](https://docs.nvidia.com/cuda/cuda-programming-guide/index.html):
