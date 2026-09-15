@@ -8,16 +8,16 @@
 #include <string>
 #include <vector>
 
-#define CHECK_CUDA(call)                                                       \
-    do                                                                         \
-    {                                                                          \
-        cudaError_t status = (call);                                           \
-        if (status != cudaSuccess)                                             \
-        {                                                                      \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__      \
-                      << ": " << cudaGetErrorString(status) << "\n";          \
-            return 1;                                                          \
-        }                                                                      \
+#define CHECK_CUDA(call)                                                 \
+    do                                                                   \
+    {                                                                    \
+        cudaError_t status = (call);                                     \
+        if (status != cudaSuccess)                                       \
+        {                                                                \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ \
+                      << ": " << cudaGetErrorString(status) << "\n";     \
+            return 1;                                                    \
+        }                                                                \
     } while (0)
 
 struct Case
@@ -85,11 +85,19 @@ __global__ void repeated_working_set_read(const float *input,
     // Small working sets should have strong cache reuse. As the working set
     // grows, useful bandwidth should eventually drop because more reads
     // have to come from lower levels of the memory hierarchy.
-    (void)input;
-    (void)output;
-    (void)output_elements;
-    (void)working_set_elements;
-    (void)repeat_reads;
+    int output_index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (output_index > output_elements)
+        return;
+    int mask = working_set_elements - 1;
+    int base = output_index & mask;
+    float sum = 0;
+    for (int repeat_index = 0; repeat_index < repeat_reads; ++repeat_index)
+    {
+        int input_index = (base + repeat_index * 131) & mask;
+        sum += input[input_index];
+    }
+    output[output_index] = sum;
+    return;
 }
 
 int parse_positive_int(const char *value, const char *name)

@@ -1,0 +1,117 @@
+./cache_behavior 1048576 256 64 100
+cache_behavior
+Output elements     = 1048576
+Largest input       = 256.000 MiB
+Output bytes        = 4.000 MiB
+Threads/block       = 256
+Blocks              = 4096
+Repeat reads/thread = 64
+Warm-up launches    = 3
+Iterations          = 100
+
+Working set         = 4 KiB
+Working-set elements= 1024
+Min kernel time     = 0.731 ms
+Max kernel time     = 0.901 ms
+Average kernel time = 0.814 ms
+Useful bandwidth    = 335.101 GB/s
+Result              = PASS
+
+Working set         = 64 KiB
+Working-set elements= 16384
+Min kernel time     = 0.281 ms
+Max kernel time     = 0.318 ms
+Average kernel time = 0.288 ms
+Useful bandwidth    = 947.586 GB/s
+Result              = PASS
+
+Working set         = 1 MiB
+Working-set elements= 262144
+Min kernel time     = 0.307 ms
+Max kernel time     = 0.335 ms
+Average kernel time = 0.321 ms
+Useful bandwidth    = 848.445 GB/s
+Result              = PASS
+
+Working set         = 8 MiB
+Working-set elements= 2097152
+Min kernel time     = 0.334 ms
+Max kernel time     = 0.340 ms
+Average kernel time = 0.335 ms
+Useful bandwidth    = 812.993 GB/s
+Result              = PASS
+
+Working set         = 64 MiB
+Working-set elements= 16777216
+Min kernel time     = 0.326 ms
+Max kernel time     = 0.338 ms
+Average kernel time = 0.333 ms
+Useful bandwidth    = 818.997 GB/s
+Result              = PASS
+
+Working set         = 256 MiB
+Working-set elements= 67108864
+Min kernel time     = 0.326 ms
+Max kernel time     = 0.341 ms
+Average kernel time = 0.328 ms
+Useful bandwidth    = 832.011 GB/s
+Result              = PASS
+
+cache_behavior
+Output elements     = 2097152
+Largest input       = 256.000 MiB
+Output bytes        = 8.000 MiB
+Threads/block       = 256
+Blocks              = 8192
+Repeat reads/thread = 64
+Warm-up launches    = 3
+Iterations          = 100
+
+Working set         = 4 KiB
+Working-set elements= 1024
+Min kernel time     = 1.619 ms
+Max kernel time     = 1.784 ms
+Average kernel time = 1.700 ms
+Useful bandwidth    = 320.832 GB/s
+Result              = PASS
+
+Working set         = 64 KiB
+Working-set elements= 16384
+Min kernel time     = 0.610 ms
+Max kernel time     = 0.640 ms
+Average kernel time = 0.620 ms
+Useful bandwidth    = 879.555 GB/s
+Result              = PASS
+
+Working set         = 1 MiB
+Working-set elements= 262144
+Min kernel time     = 0.641 ms
+Max kernel time     = 0.666 ms
+Average kernel time = 0.657 ms
+Useful bandwidth    = 830.366 GB/s
+Result              = PASS
+
+Working set         = 8 MiB
+Working-set elements= 2097152
+Min kernel time     = 0.659 ms
+Max kernel time     = 0.670 ms
+Average kernel time = 0.663 ms
+Useful bandwidth    = 822.773 GB/s
+Result              = PASS
+
+Working set         = 64 MiB
+Working-set elements= 16777216
+Min kernel time     = 0.660 ms
+Max kernel time     = 0.677 ms
+Average kernel time = 0.664 ms
+Useful bandwidth    = 821.184 GB/s
+Result              = PASS
+
+Working set         = 256 MiB
+Working-set elements= 67108864
+Min kernel time     = 0.661 ms
+Max kernel time     = 0.673 ms
+Average kernel time = 0.665 ms
+Useful bandwidth    = 820.383 GB/s
+Result              = PASS
+
