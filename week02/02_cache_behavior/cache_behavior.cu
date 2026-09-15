@@ -29,8 +29,8 @@ struct Case
 /*
 Learning task for this lab:
 
-You will finish one kernel that repeatedly reads from a bounded working
-set. Each thread writes one output value, but it performs many input reads
+This lab uses one kernel that repeatedly reads from a bounded working set.
+Each thread writes one output value, but it performs many input reads
 before writing. By changing only the working-set size, you can observe when
 cache reuse is strong and when the workload becomes closer to streaming
 from DRAM.
@@ -41,8 +41,8 @@ Goal:
 - Compare small working sets against large working sets.
 - Separate "good coalescing" from "good cache reuse".
 
-The benchmark harness below is complete. Your job is to fill in the kernel
-TODO without changing the cases, timing code, or verification code.
+The benchmark harness below keeps everything fixed except the active
+working-set size.
 */
 
 __global__ void repeated_working_set_read(const float *input,
@@ -69,16 +69,16 @@ __global__ void repeated_working_set_read(const float *input,
     //     sum        += input[input_index]
     //     output[output_index] = sum
     //
-    // TODO 1: Compute this thread's global output index.
+    // Step 1: Compute this thread's global output index.
     //
-    // TODO 2: Return early if the output index is outside output_elements.
+    // Step 2: Return early if the output index is outside output_elements.
     //
-    // TODO 3: Compute the working-set mask and base input index.
+    // Step 3: Compute the working-set mask and base input index.
     //
-    // TODO 4: Loop repeat_reads times, read from input[input_index], and
+    // Step 4: Loop repeat_reads times, read from input[input_index], and
     // accumulate into a local float.
     //
-    // TODO 5: Write the final sum to output[output_index].
+    // Step 5: Write the final sum to output[output_index].
     //
     // Observation goal after implementation:
     //
@@ -86,18 +86,23 @@ __global__ void repeated_working_set_read(const float *input,
     // grows, useful bandwidth should eventually drop because more reads
     // have to come from lower levels of the memory hierarchy.
     int output_index = blockIdx.x * blockDim.x + threadIdx.x;
-    if (output_index > output_elements)
+
+    if (output_index >= output_elements)
+    {
         return;
+    }
+
     int mask = working_set_elements - 1;
     int base = output_index & mask;
-    float sum = 0;
+    float sum = 0.0f;
+
     for (int repeat_index = 0; repeat_index < repeat_reads; ++repeat_index)
     {
         int input_index = (base + repeat_index * 131) & mask;
         sum += input[input_index];
     }
+
     output[output_index] = sum;
-    return;
 }
 
 int parse_positive_int(const char *value, const char *name)

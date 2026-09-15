@@ -216,14 +216,16 @@ Research paper track:
 - [x] Matrix multiplication memory-layout experiment
 - [x] Matrix multiplication cuBLAS comparison
 - [x] Warp-level memory coalescing
-- [ ] Cache behavior / working-set size sweep
+- [x] Cache behavior / working-set size sweep
+- [ ] Shared-memory bank conflicts
 
 ## Current Focus
 
-Week 2 / Experiment 02:
+Week 2 / Experiment 03:
 
-- Measure repeated reads from different working-set sizes.
-- Observe when cache reuse helps and when the workload behaves more like
-  streaming global-memory traffic.
-- Connect the result back to memory coalescing and the Week 2 memory
-  hierarchy roadmap.
+- Measure shared-memory access patterns with increasing bank-conflict
+  degree.
+- Explain why on-chip shared memory can still serialize a warp when the
+  address pattern maps many lanes to the same bank.
+- Connect shared-memory bank conflicts back to matrix transpose and
+  shared-memory tiling.
