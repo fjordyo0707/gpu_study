@@ -1,0 +1,115 @@
+./global_vs_shared_reuse 16777216 256 4 32 100
+global_vs_shared_reuse
+Elements            = 16777216
+Input bytes         = 64.000 MiB
+Output bytes        = 64.000 MiB
+Threads/block       = 256
+Blocks              = 65536
+Radius              = 4
+Repeat accesses     = 32
+Warm-up launches    = 3
+Iterations          = 100
+
+Kernel              = direct_global
+Padding             = 0
+Shared memory/block = 0.000 KiB
+Min kernel time     = 13.004 ms
+Max kernel time     = 16.946 ms
+Average kernel time = 13.767 ms
+Logical bandwidth   = 784.822 GB/s
+Result              = PASS
+
+Kernel              = shared_tiled
+Padding             = 0
+Shared memory/block = 1.016 KiB
+Min kernel time     = 5.249 ms
+Max kernel time     = 6.107 ms
+Average kernel time = 5.538 ms
+Logical bandwidth   = 1950.837 GB/s
+Result              = PASS
+
+Kernel              = shared_padded
+Padding             = 1
+Shared memory/block = 1.020 KiB
+Min kernel time     = 5.171 ms
+Max kernel time     = 6.183 ms
+Average kernel time = 5.500 ms
+Logical bandwidth   = 1964.334 GB/s
+Result              = PASS
+
+global_vs_shared_reuse
+Elements            = 33554432
+Input bytes         = 128.000 MiB
+Output bytes        = 128.000 MiB
+Threads/block       = 256
+Blocks              = 131072
+Radius              = 4
+Repeat accesses     = 32
+Warm-up launches    = 3
+Iterations          = 100
+
+Kernel              = direct_global
+Padding             = 0
+Shared memory/block = 0.000 KiB
+Min kernel time     = 26.001 ms
+Max kernel time     = 32.910 ms
+Average kernel time = 27.020 ms
+Logical bandwidth   = 799.755 GB/s
+Result              = PASS
+
+Kernel              = shared_tiled
+Padding             = 0
+Shared memory/block = 1.016 KiB
+Min kernel time     = 10.560 ms
+Max kernel time     = 11.926 ms
+Average kernel time = 10.814 ms
+Logical bandwidth   = 1998.332 GB/s
+Result              = PASS
+
+Kernel              = shared_padded
+Padding             = 1
+Shared memory/block = 1.020 KiB
+Min kernel time     = 10.563 ms
+Max kernel time     = 11.878 ms
+Average kernel time = 10.918 ms
+Logical bandwidth   = 1979.233 GB/s
+Result              = PASS
+
+global_vs_shared_reuse
+Elements            = 16777216
+Input bytes         = 64.000 MiB
+Output bytes        = 64.000 MiB
+Threads/block       = 256
+Blocks              = 65536
+Radius              = 8
+Repeat accesses     = 64
+Warm-up launches    = 3
+Iterations          = 100
+
+Kernel              = direct_global
+Padding             = 0
+Shared memory/block = 0.000 KiB
+Min kernel time     = 45.576 ms
+Max kernel time     = 49.048 ms
+Average kernel time = 46.352 ms
+Logical bandwidth   = 835.383 GB/s
+Result              = PASS
+
+Kernel              = shared_tiled
+Padding             = 0
+Shared memory/block = 1.031 KiB
+Min kernel time     = 11.703 ms
+Max kernel time     = 12.289 ms
+Average kernel time = 12.118 ms
+Logical bandwidth   = 3195.311 GB/s
+Result              = PASS
+
+Kernel              = shared_padded
+Padding             = 1
+Shared memory/block = 1.035 KiB
+Min kernel time     = 11.998 ms
+Max kernel time     = 12.293 ms
+Average kernel time = 12.132 ms
+Logical bandwidth   = 3191.751 GB/s
+Result              = PASS
+

@@ -8,16 +8,16 @@
 #include <string>
 #include <vector>
 
-#define CHECK_CUDA(call)                                                       \
-    do                                                                         \
-    {                                                                          \
-        cudaError_t status = (call);                                           \
-        if (status != cudaSuccess)                                             \
-        {                                                                      \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__      \
-                      << ": " << cudaGetErrorString(status) << "\n";          \
-            return 1;                                                          \
-        }                                                                      \
+#define CHECK_CUDA(call)                                                 \
+    do                                                                   \
+    {                                                                    \
+        cudaError_t status = (call);                                     \
+        if (status != cudaSuccess)                                       \
+        {                                                                \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ \
+                      << ": " << cudaGetErrorString(status) << "\n";     \
+            return 1;                                                    \
+        }                                                                \
     } while (0)
 
 struct Case
@@ -75,11 +75,20 @@ __global__ void stencil_global_direct(const float *input,
     //
     // This version has simple coalesced global reads. It may already be
     // fast when cache reuse is strong.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)radius;
-    (void)repeat_accesses;
+    int g_idx = blockDim.x * blockIdx.x + threadIdx.x;
+    if (g_idx >= n)
+        return;
+
+    float sum = 0.0f;
+    for (int i = 0; i < repeat_accesses; ++i)
+    {
+        for (int j = 0; j <= radius; ++j)
+        {
+            if ((g_idx + j) < n)
+                sum += input[g_idx + j];
+        }
+    }
+    output[g_idx] = sum;
 }
 
 __global__ void stencil_shared_tiled(const float *input,
@@ -129,13 +138,29 @@ __global__ void stencil_shared_tiled(const float *input,
     //
     // Important: do not return before __syncthreads(), because every thread
     // in the block must reach the synchronization point.
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)radius;
-    (void)repeat_accesses;
-    (void)padding;
-    (void)tile;
+    int g_idx = blockDim.x * blockIdx.x + threadIdx.x;
+    int b_start = blockDim.x * blockIdx.x;
+
+    if (g_idx < n)
+        tile[threadIdx.x] = input[g_idx];
+    if (threadIdx.x <= radius)
+    {
+        int halo_idx = b_start + blockDim.x + threadIdx.x;
+        if (halo_idx < n)
+            tile[blockDim.x + threadIdx.x] = input[halo_idx];
+        else
+            tile[blockDim.x + threadIdx.x] = 0.0;
+    }
+    __syncthreads();
+    float sum = 0;
+    for (int i = 0; i < repeat_accesses; ++i)
+    {
+        for (int j = 0; j <= radius; ++j)
+        {
+            sum += tile[threadIdx.x + j];
+        }
+    }
+    output[g_idx] = sum;
 }
 
 int parse_positive_int(const char *value, const char *name)
