@@ -1,0 +1,8 @@
+kernel,arithmetic_intensity_flop_per_byte,measured_gflops,notes
+vector_add,,,fill from week01/01_vector_add
+matmul_naive,,,fill from week01/02_matrix_multiply
+matmul_tiled,,,fill from week01/02_matrix_multiply
+matmul_register_blocking,,,fill from week01/02_matrix_multiply
+arithmetic_intensity_fma_1,,,fill from week03/01_arithmetic_intensity
+arithmetic_intensity_fma_64,,,fill from week03/01_arithmetic_intensity
+arithmetic_intensity_fma_1024,,,fill from week03/01_arithmetic_intensity

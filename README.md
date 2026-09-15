@@ -219,6 +219,9 @@ Research paper track:
 - [x] Cache behavior / working-set size sweep
 - [x] Shared-memory bank conflicts
 - [ ] Global memory reuse vs shared-memory reuse
+- [ ] Nsight Compute memory counters
+- [ ] Arithmetic intensity sweep
+- [ ] Simple Roofline model
 
 ## Current Focus
 
@@ -230,3 +233,9 @@ Week 2 / Experiment 04:
   hardware cache are already good enough.
 - Connect the result back to matrix tiling, cache reuse, and shared-memory
   overhead.
+
+## Upcoming Practice Queue
+
+1. Week 2 / Experiment 05 - Nsight Compute memory counters
+2. Week 3 / Experiment 01 - Arithmetic intensity
+3. Week 3 / Experiment 02 - Roofline model

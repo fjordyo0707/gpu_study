@@ -192,8 +192,12 @@ letting coalesced global loads and hardware cache do the work.
 
 ## Next Experiment
 
-After this lab, Week 2 can branch in two directions:
+After this lab, use Nsight Compute to collect memory counters for the Week
+2 kernels:
 
-- use Nsight Compute to collect memory counters for the Week 2 kernels
-- move into Week 3 performance modeling with arithmetic intensity and
-  Roofline analysis
+```text
+../05_nsight_compute_memory_counters
+```
+
+That profiling lab is the bridge from Week 2 memory hierarchy to Week 3
+performance modeling.
