@@ -175,8 +175,11 @@ Core references for Week 1 and Week 2:
   the practical performance guide for timing, bandwidth, coalescing,
   shared memory, occupancy, and optimization workflow.
 - [Nsight Compute Profiling Guide](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html):
-  the profiler reference to use when a benchmark number needs to be
-  explained with memory and compute counters.
+  the profiler reference to use when supported hardware is available and a
+  benchmark number needs to be explained with memory and compute counters.
+- [Nsight Systems User Guide](https://docs.nvidia.com/nsight-systems/UserGuide/index.html):
+  the timeline profiler reference to use when detailed Nsight Compute
+  counters are unavailable.
 
 Research paper track:
 
@@ -219,7 +222,7 @@ Research paper track:
 - [x] Cache behavior / working-set size sweep
 - [x] Shared-memory bank conflicts
 - [ ] Global memory reuse vs shared-memory reuse
-- [ ] Nsight Compute memory counters
+- [ ] Profiling alternatives for memory labs
 - [ ] Arithmetic intensity sweep
 - [ ] Simple Roofline model
 
@@ -236,6 +239,6 @@ Week 2 / Experiment 04:
 
 ## Upcoming Practice Queue
 
-1. Week 2 / Experiment 05 - Nsight Compute memory counters
+1. Week 2 / Experiment 05 - Profiling alternatives for memory labs
 2. Week 3 / Experiment 01 - Arithmetic intensity
 3. Week 3 / Experiment 02 - Roofline model
