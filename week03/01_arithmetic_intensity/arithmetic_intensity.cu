@@ -8,16 +8,16 @@
 #include <string>
 #include <vector>
 
-#define CHECK_CUDA(call)                                                       \
-    do                                                                         \
-    {                                                                          \
-        cudaError_t status = (call);                                           \
-        if (status != cudaSuccess)                                             \
-        {                                                                      \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__      \
-                      << ": " << cudaGetErrorString(status) << "\n";          \
-            return 1;                                                          \
-        }                                                                      \
+#define CHECK_CUDA(call)                                                 \
+    do                                                                   \
+    {                                                                    \
+        cudaError_t status = (call);                                     \
+        if (status != cudaSuccess)                                       \
+        {                                                                \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ \
+                      << ": " << cudaGetErrorString(status) << "\n";     \
+            return 1;                                                    \
+        }                                                                \
     } while (0)
 
 struct Case
@@ -71,10 +71,18 @@ __global__ void arithmetic_intensity_kernel(const float *input,
     // TODO 4: Run the dependent FMA loop.
     //
     // TODO 5: Store x to output[index].
-    (void)input;
-    (void)output;
-    (void)n;
-    (void)fma_repeats;
+    int g_idx = blockDim.x * blockIdx.x + threadIdx.x;
+
+    if (g_idx >= n)
+        return;
+    float x = input[g_idx];
+    for (int i = 0; i < fma_repeats; ++i)
+    {
+        x = fmaf(x, 1.000001f, 0.000001f);
+    }
+
+    output[g_idx] = x;
+    return;
 }
 
 int parse_positive_int(const char *value, const char *name)

@@ -1,0 +1,72 @@
+arithmetic_intensity
+Elements            = 16777216
+Input bytes         = 64.000 MiB
+Output bytes        = 64.000 MiB
+Threads/block       = 256
+Blocks              = 65536
+Warm-up launches    = 3
+Iterations          = 100
+
+FMA repeats         = 0
+Arithmetic intensity= 0.000 FLOP/byte
+Min kernel time     = 0.372 ms
+Max kernel time     = 0.385 ms
+Average kernel time = 0.373 ms
+Achieved throughput = 0.000 GFLOP/s
+Effective bandwidth = 359.566 GB/s
+Result              = PASS
+
+FMA repeats         = 1
+Arithmetic intensity= 0.250 FLOP/byte
+Min kernel time     = 0.371 ms
+Max kernel time     = 0.381 ms
+Average kernel time = 0.373 ms
+Achieved throughput = 89.853 GFLOP/s
+Effective bandwidth = 359.413 GB/s
+Result              = PASS
+
+FMA repeats         = 4
+Arithmetic intensity= 1.000 FLOP/byte
+Min kernel time     = 0.371 ms
+Max kernel time     = 0.390 ms
+Average kernel time = 0.374 ms
+Achieved throughput = 359.160 GFLOP/s
+Effective bandwidth = 359.160 GB/s
+Result              = PASS
+
+FMA repeats         = 16
+Arithmetic intensity= 4.000 FLOP/byte
+Min kernel time     = 0.372 ms
+Max kernel time     = 0.382 ms
+Average kernel time = 0.374 ms
+Achieved throughput = 1436.489 GFLOP/s
+Effective bandwidth = 359.122 GB/s
+Result              = PASS
+
+FMA repeats         = 64
+Arithmetic intensity= 16.000 FLOP/byte
+Min kernel time     = 0.454 ms
+Max kernel time     = 0.536 ms
+Average kernel time = 0.470 ms
+Achieved throughput = 4568.001 GFLOP/s
+Effective bandwidth = 285.500 GB/s
+Result              = PASS
+
+FMA repeats         = 256
+Arithmetic intensity= 64.000 FLOP/byte
+Min kernel time     = 1.264 ms
+Max kernel time     = 1.431 ms
+Average kernel time = 1.282 ms
+Achieved throughput = 6698.538 GFLOP/s
+Effective bandwidth = 104.665 GB/s
+Result              = PASS
+
+FMA repeats         = 1024
+Arithmetic intensity= 256.000 FLOP/byte
+Min kernel time     = 4.203 ms
+Max kernel time     = 5.155 ms
+Average kernel time = 4.490 ms
+Achieved throughput = 7652.792 GFLOP/s
+Effective bandwidth = 29.894 GB/s
+Result              = PASS
+
