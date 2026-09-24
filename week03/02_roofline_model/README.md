@@ -115,6 +115,8 @@ matmul_tiled,?,1006,fill arithmetic intensity estimate
 | arithmetic_intensity fma=1 | week03/01_arithmetic_intensity | | | |
 | arithmetic_intensity fma=64 | week03/01_arithmetic_intensity | | | |
 | arithmetic_intensity fma=1024 | week03/01_arithmetic_intensity | | | |
+| memory_stream | week03/03_memory_vs_compute | | | |
+| compute_chain_512 | week03/03_memory_vs_compute | | | |
 
 ## Observation Questions
 
@@ -141,8 +143,9 @@ Roofline is the first model that puts those points on one map.
 
 ## Next Experiment
 
-After building a simple Roofline model, continue with bottleneck analysis:
+After building a simple Roofline model, create direct memory-bound and
+compute-bound comparison points:
 
 ```text
-../03_bottleneck_analysis
+../03_memory_vs_compute
 ```

@@ -1,0 +1,8 @@
+kernel,source_lab,arithmetic_intensity_flop_per_byte,measured_gflops,measured_bandwidth_gbs,observed_symptom,first_hypothesis,next_experiment,status
+vector_add,week01/01_vector_add,,,,,,,
+matmul_naive,week01/02_matrix_multiply,,,,,,,
+matmul_tiled,week01/02_matrix_multiply,,,,,,,
+arithmetic_intensity_fma_1,week03/01_arithmetic_intensity,,,,,,,
+arithmetic_intensity_fma_1024,week03/01_arithmetic_intensity,,,,,,,
+memory_stream,week03/03_memory_vs_compute,,,,,,,
+compute_chain_512,week03/03_memory_vs_compute,,,,,,,

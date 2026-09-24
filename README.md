@@ -223,22 +223,25 @@ Research paper track:
 - [x] Shared-memory bank conflicts
 - [ ] Global memory reuse vs shared-memory reuse
 - [ ] Profiling alternatives for memory labs
-- [ ] Arithmetic intensity sweep
+- [x] Arithmetic intensity sweep
 - [ ] Simple Roofline model
+- [ ] Memory-bound vs compute-bound workloads
+- [ ] Bottleneck analysis
+- [ ] Performance counter workflow
 
 ## Current Focus
 
-Week 2 / Experiment 04:
+Week 3 / Experiment 02:
 
-- Compare repeated direct global-memory reads against explicit
-  shared-memory staging.
-- Measure when shared memory helps and when coalesced global loads plus
-  hardware cache are already good enough.
-- Connect the result back to matrix tiling, cache reuse, and shared-memory
-  overhead.
+- Build a simple Roofline model from measured benchmark results.
+- Compare arithmetic intensity, measured GFLOP/s, and memory bandwidth
+  limits.
+- Use the model to decide whether each kernel is memory-bound,
+  compute-bound, or below both roofs for another reason.
 
 ## Upcoming Practice Queue
 
-1. Week 2 / Experiment 05 - Profiling alternatives for memory labs
-2. Week 3 / Experiment 01 - Arithmetic intensity
-3. Week 3 / Experiment 02 - Roofline model
+1. Week 3 / Experiment 02 - Roofline model
+2. Week 3 / Experiment 03 - Memory-bound vs compute-bound workloads
+3. Week 3 / Experiment 04 - Bottleneck analysis
+4. Week 3 / Experiment 05 - Performance counter workflow
