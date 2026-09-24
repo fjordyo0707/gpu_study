@@ -38,17 +38,21 @@ Eventually runtime should scale more with FLOP count than with bytes moved.
   readable case study showing how Roofline thinking guides real
   optimization.
 
-## Implementation TODOs
+## Implementation Status
 
-This lab is intentionally left as a starter exercise.
+This lab has been completed and recorded in:
 
-Fill in the TODO section in:
+```text
+std_record.log
+```
+
+The critical implementation work was in:
 
 ```text
 arithmetic_intensity.cu
 ```
 
-Required implementation work:
+Implemented kernel tasks:
 
 1. Compute the global output index.
 2. Load one input value.
@@ -56,10 +60,9 @@ Required implementation work:
 4. Write one output value.
 
 The benchmark harness, timing logic, result verification, and reporting
-are already provided.
+were provided.
 
-The program may compile before the TODO is complete, but the benchmark
-results are not meaningful until every case prints:
+The benchmark result is valid because every measured case printed:
 
 ```text
 Result              = PASS
@@ -116,25 +119,45 @@ arithmetic intensity = FLOPs / bytes
 
 | FMA repeats | Arithmetic intensity (FLOP/byte) | Avg time (ms) | GFLOP/s | Effective bandwidth (GB/s) | Result |
 | ----------: | -------------------------------: | ------------: | ------: | -------------------------: | ------ |
-| 0 | 0.00 | | | | |
-| 1 | 0.25 | | | | |
-| 4 | 1.00 | | | | |
-| 16 | 4.00 | | | | |
-| 64 | 16.00 | | | | |
-| 256 | 64.00 | | | | |
-| 1024 | 256.00 | | | | |
+| 0 | 0.00 | 0.373 | 0.000 | 359.566 | PASS |
+| 1 | 0.25 | 0.373 | 89.853 | 359.413 | PASS |
+| 4 | 1.00 | 0.374 | 359.160 | 359.160 | PASS |
+| 16 | 4.00 | 0.374 | 1436.489 | 359.122 | PASS |
+| 64 | 16.00 | 0.470 | 4568.001 | 285.500 | PASS |
+| 256 | 64.00 | 1.282 | 6698.538 | 104.665 | PASS |
+| 1024 | 256.00 | 4.490 | 7652.792 | 29.894 | PASS |
+
+Recorded from:
+
+```text
+./arithmetic_intensity 16777216 256 100
+```
 
 ## Detailed Timing
 
 | FMA repeats | Min time (ms) | Max time (ms) | Avg time (ms) |
 | ----------: | ------------: | ------------: | ------------: |
-| 0 | | | |
-| 1 | | | |
-| 4 | | | |
-| 16 | | | |
-| 64 | | | |
-| 256 | | | |
-| 1024 | | | |
+| 0 | 0.372 | 0.385 | 0.373 |
+| 1 | 0.371 | 0.381 | 0.373 |
+| 4 | 0.371 | 0.390 | 0.374 |
+| 16 | 0.372 | 0.382 | 0.374 |
+| 64 | 0.454 | 0.536 | 0.470 |
+| 256 | 1.264 | 1.431 | 1.282 |
+| 1024 | 4.203 | 5.155 | 4.490 |
+
+## Roofline Inputs From This Lab
+
+These numbers are useful for the next lab:
+
+| Quantity | Value | Note |
+| -------- | ----: | ---- |
+| Best measured low-AI bandwidth | 359.566 GB/s | From the `0` FMA case |
+| Best measured throughput in this kernel | 7652.792 GFLOP/s | From the `1024` FMA case |
+| Approximate measured ridge point | 21.284 FLOP/byte | `7652.792 / 359.566` |
+
+The measured ridge point is only for this benchmark. The dependent FMA loop
+may not reach the GPU's theoretical FP32 peak because every operation
+depends on the previous value.
 
 ## Observation Questions
 
@@ -144,9 +167,48 @@ arithmetic intensity = FLOPs / bytes
 
 ## Observation
 
+The first four cases had almost identical runtime:
+
+- `0` repeats: 0.373 ms
+- `1` repeat: 0.373 ms
+- `4` repeats: 0.374 ms
+- `16` repeats: 0.374 ms
+
+That means the extra arithmetic up to `16` dependent FMA operations per
+element was mostly hidden by the fixed memory traffic and launch/runtime
+costs. The effective bandwidth stayed near 359 GB/s for all of those cases.
+
+The transition started around `64` repeats. Runtime increased to 0.470 ms,
+GFLOP/s jumped to 4568.001, and effective bandwidth dropped to 285.500
+GB/s. By `256` and `1024` repeats, runtime scaled much more clearly with
+the amount of arithmetic.
+
+The highest measured throughput was 7652.792 GFLOP/s at `1024` repeats.
+That is the best compute-side number from this specific dependent-FMA
+microbenchmark, not necessarily the GPU's absolute FP32 peak.
 
 ## Interpretation
 
+The hypothesis is supported.
+
+Low arithmetic-intensity cases behave like bandwidth tests. They move the
+same 128 MiB of useful data and finish in about the same time even when a
+small amount of arithmetic is added.
+
+Higher arithmetic-intensity cases behave more like compute tests. The bytes
+moved do not change, but the runtime grows because each thread now performs
+many dependent FMA operations before writing its result.
+
+The most important lesson is that "effective bandwidth" becomes less
+meaningful once the kernel is compute-bound. The high-FMA cases report low
+bandwidth not because DRAM became slower, but because the kernel spends most
+of its time doing arithmetic instead of moving data.
+
+For the next Roofline lab, use the low-AI bandwidth plateau as the measured
+memory roof and the high-AI throughput as a measured compute roof for this
+controlled benchmark. The observed transition near 16 to 64 FLOP/byte is
+consistent with the calculated measured ridge point of about 21.284
+FLOP/byte.
 
 ## Connection To Previous Labs
 
