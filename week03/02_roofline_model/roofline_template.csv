@@ -1,10 +1,14 @@
 kernel,arithmetic_intensity_flop_per_byte,measured_gflops,notes
-vector_add,,,fill from week01/01_vector_add
-matmul_naive,,,fill from week01/02_matrix_multiply
-matmul_tiled,,,fill from week01/02_matrix_multiply
-matmul_register_blocking,,,fill from week01/02_matrix_multiply
-arithmetic_intensity_fma_1,,,fill from week03/01_arithmetic_intensity
-arithmetic_intensity_fma_64,,,fill from week03/01_arithmetic_intensity
-arithmetic_intensity_fma_1024,,,fill from week03/01_arithmetic_intensity
-memory_stream,,,fill from week03/03_memory_vs_compute
-compute_chain_512,,,fill from week03/03_memory_vs_compute
+vector_add,0.083333333333,31.969633,week01/01_vector_add/README.md proper microbenchmark baseline; N=16777216; threads=256; avg=0.524786 ms; GFLOP/s=N/time; AI=1/12
+matmul_naive,170.666666667,448.103,week01/02_matrix_multiply/std_record.log; N=1024; ideal compulsory-traffic AI=N/6 assumes each matrix transferred once; actual DRAM AI unknown
+matmul_tiled,170.666666667,1006.580,week01/02_matrix_multiply/std_record.log; N=1024; tile=16; ideal compulsory-traffic AI=N/6 assumes each matrix transferred once; actual DRAM AI unknown
+matmul_register_blocking,170.666666667,1373.441,week01/02_matrix_multiply/std_record.log; N=1024; tile=16; outputs/thread=2; ideal compulsory-traffic AI=N/6 assumes each matrix transferred once; actual DRAM AI unknown
+matmul_cublas,170.666666667,7559.304,week01/02_matrix_multiply/std_record.log; N=1024; cublasSgemm; ideal compulsory-traffic AI=N/6; actual DRAM AI unknown
+arithmetic_intensity_fma_1,0.25,89.853,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*1/8; PASS
+arithmetic_intensity_fma_4,1,359.160,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*4/8; PASS
+arithmetic_intensity_fma_16,4,1436.489,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*16/8; PASS
+arithmetic_intensity_fma_64,16,4568.001,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*64/8; PASS
+arithmetic_intensity_fma_256,64,6698.538,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*256/8; PASS
+arithmetic_intensity_fma_1024,256,7652.792,week03/01_arithmetic_intensity/std_record.log; N=16777216; AI=2*1024/8; PASS
+memory_stream,0.25,,week03/03_memory_vs_compute; planned AI=4/16; no recorded run available
+compute_chain_512,128,,week03/03_memory_vs_compute; planned AI=2*512/8; no recorded run available
